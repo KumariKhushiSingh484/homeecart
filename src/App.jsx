@@ -12,10 +12,45 @@ import surf from "./assets/products/surf.jpg";
 function App() {
   const [cartItems, setCartItems] = useState([]);
   const [showCart, setShowCart] = useState(false);
-  const removeFromCart = (index) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [toast, setToast] = useState(null);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const addToCart = (product) => {
+  const existingItem = cartItems.find(
+    (item) => item.name === product.name
+  );
+
+  if (existingItem) {
+    setCartItems(
+      cartItems.map((item) =>
+        item.name === product.name
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      )
+    );
+  } else {
+    setCartItems([
+      ...cartItems,
+      { ...product, quantity: 1 },
+    ]);
+  }
+
+  setToast(product);
+
+setTimeout(() => {
+  setToast(null);
+}, 3000);
+};
+ const removeFromCart = (index) => {
   const updatedCart = [...cartItems];
-  updatedCart.splice(index, 1);
-  setCartItems(updatedCart);
+
+  if (updatedCart[index].quantity > 1) {
+    updatedCart[index].quantity -= 1;
+    setCartItems([...updatedCart]);
+  } else {
+    updatedCart.splice(index, 1);
+    setCartItems(updatedCart);
+  }
 };
 
   const categories = [
@@ -71,6 +106,9 @@ function App() {
       discount: "18% OFF",
     },
   ];
+  const filteredProducts = products.filter((product) =>
+  product.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -112,14 +150,64 @@ function App() {
 
         </div>
       </header>
+{toast && (
+  <div className="fixed top-5 right-5 bg-white p-4 rounded-xl shadow-2xl z-50 w-80 animate-pulse">
 
+    <div className="flex justify-between items-center">
+
+      <div className="flex gap-3 items-center">
+
+  <img
+    src={toast.image}
+    alt={toast.name}
+    className="w-16 h-16 object-contain"
+  />
+
+  <div className="flex-1">
+    <p className="font-bold text-green-600">
+      ✓ {toast.name} added to cart
+    </p>
+
+    <button
+      onClick={() => {
+        setShowCart(true);
+        setToast(null);
+      }}
+      className="text-green-600 font-semibold mt-1"
+    >
+      View Cart →
+    </button>
+  </div>
+
+  <button
+    onClick={() => setToast(null)}
+    className="text-gray-500 text-xl"
+  >
+    ✕
+  </button>
+
+</div>
+
+      <button
+        onClick={() => setToast(null)}
+        className="text-gray-500 text-xl"
+      >
+        ✕
+      </button>
+
+    </div>
+
+  </div>
+)}
       {/* Search */}
       <div className="p-5">
-        <input
-          type="text"
-          placeholder="Search groceries..."
-          className="w-full p-4 rounded-xl border bg-white"
-        />
+       <input
+  type="text"
+  placeholder="Search groceries..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="w-full p-4 rounded-xl border bg-white"
+/>
       </div>
 
       {/* Offer Banner */}
@@ -158,7 +246,12 @@ function App() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {products.map((product) => (
+         {filteredProducts.length === 0 ? (
+  <h2 className="col-span-3 text-center text-red-500 text-2xl">
+    No products found 😢
+  </h2>
+) : (
+  filteredProducts.map((product) => (
             <div
               key={product.name}
               className="bg-white p-5 rounded-xl shadow hover:shadow-xl transition"
@@ -193,14 +286,15 @@ function App() {
 
               <button
                onClick={() =>
-  setCartItems([...cartItems, product])
+  addToCart(product)
 }
                 className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg w-full hover:bg-green-700"
               >
                 Add to Cart
               </button>
             </div>
-          ))}
+                    ))
+)}
         </div>
       </div>
 {/* Cart Items */}
@@ -235,30 +329,121 @@ function App() {
                 <p className="font-semibold">
                   {item.name}
                 </p>
-
-                <p>
-                  ₹{item.price}
-                </p>
+<p>
+  ₹{item.price} × {item.quantity}
+</p>
               </div>
 
-              <button
-                onClick={() => removeFromCart(index)}
-                className="bg-red-500 text-white px-3 py-1 rounded"
-              >
-                Remove
-              </button>
+              <div className="flex gap-2">
+  <button
+    onClick={() => removeFromCart(index)}
+    className="bg-red-500 text-white px-3 py-1 rounded"
+  >
+    -
+  </button>
+
+  <span className="font-bold">
+    {item.quantity}
+  </span>
+
+  <button
+    onClick={() => addToCart(item)}
+    className="bg-green-500 text-white px-3 py-1 rounded"
+  >
+    +
+  </button>
+</div>
             </div>
           ))}
 
-          <div className="mt-4 text-xl font-bold">
-            Total: ₹
-            {cartItems.reduce(
-              (total, item) => total + item.price,
-              0
-            )}
-          </div>
+          <div className="mt-4 border-t pt-4">
+
+  <div className="flex justify-between">
+    <span>Subtotal</span>
+
+    <span>
+      ₹
+      {cartItems.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      )}
+    </span>
+  </div>
+
+  <div className="flex justify-between mt-2">
+    <span>Delivery</span>
+
+    <span>
+      {cartItems.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      ) >= 500 ? (
+        <span className="text-green-600 font-bold">
+          FREE 🎉
+        </span>
+      ) : (
+        "₹40"
+      )}
+    </span>
+  </div>
+
+  <div className="flex justify-between mt-4 text-2xl font-bold">
+    <span>Total</span>
+
+    <span>
+      ₹
+      {cartItems.reduce(
+        (total, item) => total + item.price * item.quantity,
+        0
+      ) +
+        (cartItems.reduce(
+          (total, item) => total + item.price * item.quantity,
+          0
+        ) >= 500
+          ? 0
+          : 40)}
+    </span>
+  </div>
+
+</div>
+<button
+  onClick={() => setOrderPlaced(true)}
+  className="w-full bg-green-600 text-white py-3 rounded-xl mt-5 text-lg font-bold hover:bg-green-700"
+>
+  Place Order
+</button>
         </>
       )}
+    </div>
+  </div>
+)}
+{orderPlaced && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-8 rounded-2xl text-center w-96">
+
+      <h2 className="text-3xl font-bold text-green-600">
+        🎉 Order Placed Successfully!
+      </h2>
+
+      <p className="mt-4 text-lg">
+        🚴 Delivery in 10 minutes
+      </p>
+
+      <p className="mt-2 text-gray-500">
+        Thank you for shopping with HomeEcart ❤️
+      </p>
+
+      <button
+        onClick={() => {
+          setCartItems([]);
+          setShowCart(false);
+          setOrderPlaced(false);
+        }}
+        className="mt-6 bg-green-600 text-white px-6 py-3 rounded-xl font-bold"
+      >
+        Continue Shopping
+      </button>
+
     </div>
   </div>
 )}
