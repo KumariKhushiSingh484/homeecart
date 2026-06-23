@@ -1,5 +1,6 @@
-import { useState } from "react";
-
+//import { logoBase64 } from "./logoBase64";
+import { useState, useEffect } from "react";
+import { jsPDF } from "jspdf";
 import logo from "./assets/logo.png";
 
 import atta from "./assets/products/aata.jpg";
@@ -10,11 +11,18 @@ import parleg from "./assets/products/parleg.jpg";
 import surf from "./assets/products/surf.jpg";
 
 function App() {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState(() => {
+  const savedCart = localStorage.getItem("cartItems");
+  return savedCart ? JSON.parse(savedCart) : [];
+});
   const [showCart, setShowCart] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState(null);
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [orderNumber, setOrderNumber] = useState("");
+  useEffect(() => {
+  localStorage.setItem("cartItems", JSON.stringify(cartItems));
+}, [cartItems]);
   const addToCart = (product) => {
   const existingItem = cartItems.find(
     (item) => item.name === product.name
@@ -51,6 +59,145 @@ setTimeout(() => {
     updatedCart.splice(index, 1);
     setCartItems(updatedCart);
   }
+};
+const generateInvoice = () => {
+  const doc = new jsPDF();
+  doc.setFillColor(22, 163, 74); // Green
+doc.rect(0, 0, 210, 30, "F");
+doc.setFillColor(240, 240, 240);
+doc.roundedRect(15, 35, 80, 15, 2, 2, "F");
+  doc.setTextColor(255, 255, 255); // White text
+doc.setFontSize(22);
+doc.text("HomeEcart Invoice", 20, 20);
+
+doc.setTextColor(0, 0, 0); // Back to black
+
+  doc.setFontSize(14);
+  doc.setFillColor(240, 240, 240);
+doc.roundedRect(15, 35, 80, 15, 2, 2, "F");
+doc.setFontSize(12);
+
+doc.text("Customer Name: Guest User", 110, 45);
+
+doc.text("Address: Dehri-On-Sone, Bihar", 110, 55);
+
+doc.text("Phone: +91 XXXXX XXXXX", 110, 65);
+doc.text(`Order Number: ${orderNumber}`, 20, 45);
+  const now = new Date();
+
+doc.text(
+  `Date: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`,
+  20,
+  50
+);
+
+  let y = 70;
+  doc.setFontSize(16);
+doc.text("Items", 20, y);
+
+y += 10;
+
+doc.setLineWidth(0.5);
+doc.line(20, y, 190, y);
+
+y += 10;
+
+doc.setFontSize(12);
+doc.text("Item", 20, y);
+doc.text("Qty", 110, y);
+doc.text("Amount", 150, y);
+
+y += 5;
+doc.line(20, y, 190, y);
+
+y += 10;
+
+  cartItems.forEach((item) => {
+  doc.text(item.name, 20, y);
+  doc.text(item.quantity.toString(), 110, y);
+  doc.text(
+    `Rs.${item.price * item.quantity}`,
+    150,
+    y
+  );
+
+  y += 10;
+});
+
+  const total = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
+  const deliveryCharge = total >= 500 ? 0 : 40;
+
+const gst = Number((total * 0.18).toFixed(2));
+y += 10;
+
+doc.text("Payment Status", 20, y);
+
+doc.text("PAID", 150, y);
+
+y += 10;
+const grandTotal = total + deliveryCharge + gst;
+  doc.line(20, y, 190, y);
+y += 15;
+doc.setFontSize(13);
+
+doc.text(`Subtotal`, 20, y);
+doc.text(`Rs.${total}`, 150, y);
+
+y += 10;
+
+doc.text(`Delivery Charges`, 20, y);
+doc.text(
+  deliveryCharge === 0 ? "FREE" : `Rs.${deliveryCharge}`,
+  150,
+  y
+);
+
+y += 10;
+
+doc.text(`GST (18%)`, 20, y);
+doc.text(`Rs.${gst}`, 150, y);
+
+y += 10;
+
+doc.line(20, y, 190, y);
+
+y += 15;
+
+doc.setFontSize(16);
+
+doc.text(`Grand Total`, 20, y);
+doc.text(`Rs.${grandTotal}`, 150, y);
+
+y += 20;
+
+doc.setLineWidth(0.5);
+doc.line(20, y, 190, y);
+
+y += 15;
+
+doc.setFontSize(14);
+doc.setTextColor(22, 163, 74);
+
+doc.text(
+  "Thank you for shopping with HomeEcart",
+  20,
+  y
+);
+
+y += 10;
+
+doc.setFontSize(12);
+doc.setTextColor(100);
+
+doc.text(
+  "Dehri-On-Sone, Bihar | www.homeecart.com",
+  20,
+  y
+);
+  doc.save("HomeEcart_Invoice.pdf");
 };
 
   const categories = [
@@ -407,7 +554,12 @@ setTimeout(() => {
 
 </div>
 <button
-  onClick={() => setOrderPlaced(true)}
+  onClick={() => {
+  setOrderNumber(
+    "HE2026-" + Math.floor(1000 + Math.random() * 9000)
+  );
+  setOrderPlaced(true);
+}}
   className="w-full bg-green-600 text-white py-3 rounded-xl mt-5 text-lg font-bold hover:bg-green-700"
 >
   Place Order
@@ -421,9 +573,15 @@ setTimeout(() => {
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-8 rounded-2xl text-center w-96">
 
-      <h2 className="text-3xl font-bold text-green-600">
-        🎉 Order Placed Successfully!
-      </h2>
+     <div>
+  <h2 className="text-3xl font-bold text-green-600">
+    🎉 Order Placed Successfully!
+  </h2>
+
+  <p className="mt-3 text-xl font-semibold">
+    Order #{orderNumber}
+  </p>
+</div>
 
       <p className="mt-4 text-lg">
         🚴 Delivery in 10 minutes
@@ -432,7 +590,12 @@ setTimeout(() => {
       <p className="mt-2 text-gray-500">
         Thank you for shopping with HomeEcart ❤️
       </p>
-
+<button
+  onClick={generateInvoice}
+  className="mt-6 mr-3 bg-blue-600 text-white px-6 py-3 rounded-xl font-bold"
+>
+  📄 Download Invoice
+</button>
       <button
         onClick={() => {
           setCartItems([]);
