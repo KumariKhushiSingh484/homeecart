@@ -262,17 +262,17 @@ doc.text(
 
       {/* Navbar */}
       <header className="bg-green-600 text-white p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
 
           <div className="flex items-center gap-3">
             <img
               src={logo}
               alt="HomeEcart"
-              className="w-16 h-16 rounded"
+              className="w-12 h-12 md:w-16 md:h-16 rounded"
             />
 
             <div>
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-2xl md:text-3xl font-bold">
                 HomeEcart
               </h1>
 
@@ -282,14 +282,14 @@ doc.text(
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <button className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold">
+          <div className="flex gap-2 w-full md:w-auto justify-center">
+            <button className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold"
               👤 Login
             </button>
 
             <button
   onClick={() => setShowCart(true)}
-  className="bg-yellow-400 text-black px-4 py-2 rounded-lg font-semibold"
+  className="bg-yellow-400 text-black px-3 py-2 rounded-lg font-semibold text-sm md:text-base"
 >
   🛒 Cart ({cartItems.length})
 </button>
@@ -392,7 +392,7 @@ doc.text(
           Featured Products
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
          {filteredProducts.length === 0 ? (
   <h2 className="col-span-3 text-center text-red-500 text-2xl">
     No products found 😢
@@ -408,17 +408,17 @@ doc.text(
                 alt={product.name}
                 style={{
                   width: "100%",
-                  height: "180px",
+                  height: "140px",
                   objectFit: "contain",
                 }}
               />
 
-              <h3 className="font-bold text-lg text-center mt-3">
+              <h3 className="font-bold text-sm md:text-lg text-center mt-3">
                 {product.name}
               </h3>
 
               <div className="text-center mt-3">
-                <span className="text-green-600 font-bold text-xl">
+                <span className="text-green-600 font-bold text-lg md:text-xl">
                   ₹{product.price}
                 </span>
 
@@ -448,7 +448,7 @@ doc.text(
 
 {showCart && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-    <div className="bg-white p-6 rounded-xl w-96 max-h-[80vh] overflow-y-auto">
+    <div className="bg-white p-6 rounded-xl w-[95%] md:w-96 max-h-[80vh] overflow-y-auto">
 
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">
@@ -571,7 +571,7 @@ doc.text(
 )}
 {orderPlaced && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white p-8 rounded-2xl text-center w-96">
+    <div className="bg-white p-6 md:p-8 rounded-2xl text-center w-[95%] md:w-96">
 
      <div>
   <h2 className="text-3xl font-bold text-green-600">
