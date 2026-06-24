@@ -261,7 +261,7 @@ doc.text(
     <div className="min-h-screen bg-gray-100">
 
       {/* Navbar */}
-      <header className="bg-green-600 text-white p-4">
+      <header className="sticky top-0 z-50 bg-green-600 text-white p-4 shadow-lg">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
 
           <div className="flex items-center gap-3">
@@ -283,9 +283,9 @@ doc.text(
           </div>
 
           <div className="flex gap-2 w-full md:w-auto justify-center">
-            <button className="bg-white text-green-600 px-4 py-2 rounded-lg font-semibold"
-              👤 Login
-            </button>
+           <button className="bg-white text-green-600 px-3 py-2 rounded-lg font-semibold text-sm md:text-base">
+  👤 Login
+</button>
 
             <button
   onClick={() => setShowCart(true)}
@@ -353,12 +353,12 @@ doc.text(
   placeholder="Search groceries..."
   value={searchTerm}
   onChange={(e) => setSearchTerm(e.target.value)}
-  className="w-full p-4 rounded-xl border bg-white"
+  className="w-full p-4 rounded-2xl border bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
 />
       </div>
 
       {/* Offer Banner */}
-      <div className="mx-5 bg-green-500 text-white p-8 rounded-xl text-center">
+      <div className="mx-5 bg-gradient-to-r from-green-500 to-green-600 text-white p-8 rounded-3xl text-center shadow-lg">
         <h2 className="text-3xl font-bold">
           Special Offer 🎉
         </h2>
@@ -378,7 +378,7 @@ doc.text(
           {categories.map((category) => (
             <div
               key={category}
-              className="bg-white p-6 rounded-xl shadow hover:shadow-lg text-center"
+              className="bg-white p-4 md:p-6 rounded-2xl shadow hover:shadow-xl hover:scale-105 transition duration-300 text-center text-sm md:text-base"
             >
               {category}
             </div>
@@ -401,7 +401,7 @@ doc.text(
   filteredProducts.map((product) => (
             <div
               key={product.name}
-              className="bg-white p-5 rounded-xl shadow hover:shadow-xl transition"
+              className="bg-white p-5 rounded-3xl shadow hover:shadow-2xl hover:-translate-y-1 transition duration-300"
             >
               <img
                 src={product.image}
@@ -611,7 +611,7 @@ doc.text(
   </div>
 )}
       {/* Footer */}
-      <footer className="bg-green-600 text-white text-center p-4 mt-10">
+      <footer className="bg-green-700 text-white text-center p-6 mt-10 text-sm md:text-base">
         © 2026 HomeEcart | Sabse Sasta Nahi To Paise Wapas
       </footer>
 
