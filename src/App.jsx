@@ -9,8 +9,11 @@ import maggi from "./assets/products/maggi.jpg";
 import oil from "./assets/products/oil.jpg";
 import parleg from "./assets/products/parleg.jpg";
 import surf from "./assets/products/surf.jpg";
+import { db } from "./services/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 function App() {
+  const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(() => {
   const savedCart = localStorage.getItem("cartItems");
   return savedCart ? JSON.parse(savedCart) : [];
@@ -20,6 +23,25 @@ function App() {
   const [toast, setToast] = useState(null);
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
+  useEffect(() => {
+  const fetchProducts = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "products"));
+
+      const productList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setProducts(productList);
+      console.log(productList);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
+
+  fetchProducts();
+}, []);
   useEffect(() => {
   localStorage.setItem("cartItems", JSON.stringify(cartItems));
 }, [cartItems]);
@@ -209,7 +231,7 @@ doc.text(
     "Household 🏠",
   ];
 
-  const products = [
+  const Products = [
     {
       name: "Aashirvaad Atta",
       image: atta,
