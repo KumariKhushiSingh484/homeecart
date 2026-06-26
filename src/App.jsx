@@ -11,7 +11,8 @@ import parleg from "./assets/products/parleg.jpg";
 import surf from "./assets/products/surf.jpg";
 import { db } from "./services/firebase";
 import { collection, getDocs } from "firebase/firestore";
-
+import Checkout from "./pages/Checkout";
+import Navbar from "./components/Navbar";
 function App() {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(() => {
@@ -283,42 +284,12 @@ doc.text(
     <div className="min-h-screen bg-gray-100">
 
       {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-green-600 text-white p-4 shadow-lg">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-
-          <div className="flex items-center gap-3">
-            <img
-              src={logo}
-              alt="HomeEcart"
-              className="w-12 h-12 md:w-16 md:h-16 rounded"
-            />
-
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold">
-                HomeEcart
-              </h1>
-
-              <p className="text-sm">
-                📍 Dehri-On-Sone
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-2 w-full md:w-auto justify-center">
-           <button className="bg-white text-green-600 px-3 py-2 rounded-lg font-semibold text-sm md:text-base">
-  👤 Login
-</button>
-
-            <button
-  onClick={() => setShowCart(true)}
-  className="bg-yellow-400 text-black px-3 py-2 rounded-lg font-semibold text-sm md:text-base"
->
-  🛒 Cart ({cartItems.length})
-</button>
-          </div>
-
-        </div>
-      </header>
+      <Navbar
+  cartItems={cartItems}
+  setShowCart={setShowCart}
+  logo={logo}
+/>
+        
 {toast && (
   <div className="fixed top-5 right-5 bg-white p-4 rounded-xl shadow-2xl z-50 w-80 animate-pulse">
 
@@ -577,11 +548,8 @@ doc.text(
 </div>
 <button
   onClick={() => {
-  setOrderNumber(
-    "HE2026-" + Math.floor(1000 + Math.random() * 9000)
-  );
-  setOrderPlaced(true);
-}}
+    setShowCart(false);
+  }}
   className="w-full bg-green-600 text-white py-3 rounded-xl mt-5 text-lg font-bold hover:bg-green-700"
 >
   Place Order
@@ -633,6 +601,14 @@ doc.text(
   </div>
 )}
       {/* Footer */}
+      {!showCart && cartItems.length > 0 && (
+  <Checkout
+    cartItems={cartItems}
+    setCartItems={setCartItems}
+    setOrderPlaced={setOrderPlaced}
+    setOrderNumber={setOrderNumber}
+  />
+)}
       <footer className="bg-green-700 text-white text-center p-6 mt-10 text-sm md:text-base">
         © 2026 HomeEcart | Sabse Sasta Nahi To Paise Wapas
       </footer>

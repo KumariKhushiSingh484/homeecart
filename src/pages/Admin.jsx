@@ -11,8 +11,10 @@ import {
 import Sidebar from "../components/Sidebar"; 
 import ProductTable from "../components/ProductTable";
 import ProductForm from "../components/ProductForm";
+import Orders from "./Orders";
 function Admin() {
   const [products, setProducts] = useState([]);
+  const [activePage, setActivePage] = useState("products");
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -108,9 +110,14 @@ const editProduct = (product) => {
  return (
   <div className="flex bg-gray-100 min-h-screen">
 
-    <Sidebar />
+    <Sidebar
+  activePage={activePage}
+  setActivePage={setActivePage}
+/>
 
     <div className="flex-1 p-10">
+      {activePage === "products" && (
+  <>
 
       <ProductForm
   name={name}
@@ -133,6 +140,12 @@ const editProduct = (product) => {
   deleteProduct={deleteProduct}
   editProduct={editProduct}
 />
+  </>
+)}
+
+{activePage === "orders" && (
+  <Orders />
+)}
     </div>
 
   </div>
