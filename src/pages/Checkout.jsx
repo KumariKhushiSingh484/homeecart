@@ -6,6 +6,8 @@ import { formatOrderMessage } from "../utils/order/formatOrderMessage";
 import { validateCheckout } from "../utils/validation/validateCheckout";
 import { ORDER_STATUS } from "../constants/order";
 import { WHATSAPP_NUMBER } from "../constants/app";
+import useToast from "../hooks/useToast";
+import AppToast from "../components/AppToast";
 function Checkout({
   cartItems,
   setCartItems,
@@ -17,26 +19,28 @@ function Checkout({
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [location, setLocation] = useState("");
+const [location, setLocation] = useState("");
 const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+
+const { toast, setToast, showToast } = useToast();
   const placeOrder = async () => {
     if (isPlacingOrder) return;
 
-setIsPlacingOrder(true);
     try {
       // Validate checkout data
       const validation = validateCheckout({
-        customerName,
-        phone,
-        address,
-        cartItems,
-      });
+  customerName,
+  phone,
+  address,
+  cartItems,
+});
 
-      if (!validation.isValid) {
-        alert(validation.message);
-        return;
-      }
+if (!validation.isValid) {
+  showToast("error", validation.message);
+  return;
+}
 
+setIsPlacingOrder(true);
       // Generate order number
       const orderNumber = generateOrderNumber();
 
@@ -87,20 +91,23 @@ setOrderNumber(orderNumber);
 setOrderPlaced(true);
 setCartItems([]);
 
-alert("✅ Order Placed Successfully!");
-    } catch (error) {
+    } 
+    catch (error) {
   console.error(error);
-  alert("❌ Failed to place order");
-} finally {
-  setIsPlacingOrder(false);
+
+
+  showToast("error", "Failed to place order");
+}
+finally {
+   setIsPlacingOrder(false);
 }
   };
 
   const getLocation = () => {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported.");
-      return;
-    }
+   if (!navigator.geolocation) {
+  showToast("error", "Geolocation is not supported.");
+  return;
+}
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -110,13 +117,17 @@ alert("✅ Order Placed Successfully!");
         setLocation(`https://maps.google.com/?q=${lat},${lng}`);
       },
       () => {
-        alert("Unable to fetch location.");
-      }
+  showToast("error", "Unable to fetch location.");
+}
     );
   };
 
   return (
     <div className="max-w-xl mx-auto mt-10 bg-white p-8 rounded-lg shadow">
+      <AppToast
+  toast={toast}
+  setToast={setToast}
+/>
       <h1 className="text-3xl font-bold mb-6 text-center">
         Checkout
       </h1>

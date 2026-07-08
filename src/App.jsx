@@ -12,11 +12,12 @@ import ProductCard from "./components/ProductCard";
 import ProductGrid from "./components/ProductGrid";
 import CartModal from "./components/CartModal";
 import OrderSuccessModal from "./components/OrderSuccessModal";
-import ToastNotification from "./components/ToastNotification";
+import CartToast from "./components/CartToast";
 import OfferBanner from "./components/OfferBanner";
 import Footer from "./components/Footer";
 import { generateInvoice } from "./utils/invoice/generateInvoice";
 import { generateOrderNumber } from "./utils/order/generateOrderNumber";
+import AdminLogin from "./pages/AdminLogin";
 function App() {
   const [products, setProducts] = useState([]);
   const [cartItems, setCartItems] = useState(() => {
@@ -29,6 +30,8 @@ function App() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
   const [placedOrder, setPlacedOrder] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  console.log("Selected Category:", selectedCategory);
   useEffect(() => {
   const fetchProducts = async () => {
     try {
@@ -89,18 +92,27 @@ setTimeout(() => {
   }
 };
 
-  const categories = [
-    "Atta & Rice 🌾",
-    "Tea & Coffee ☕",
-    "Snacks 🍪",
-    "Beverages 🥤",
-    "Personal Care 🧴",
-    "Household 🏠",
-  ];
-  const filteredProducts = products.filter((product) =>
-  product.name.toLowerCase().includes(searchTerm.toLowerCase())
-);
+ const categories = [
+  "Atta & Rice",
+  "Tea & Coffee",
+  "Snacks",
+  "Beverages",
+  "Personal Care",
+  "Household",
+];
+  
+  const filteredProducts = products.filter((product) => {
+  const matchesSearch = product.name
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase());
 
+  const matchesCategory =
+    selectedCategory === "" ||
+    product.category === selectedCategory;
+
+  return matchesSearch && matchesCategory;
+});
+//return <Login />;
   return (
     <div className="min-h-screen bg-gray-100">
 
@@ -110,7 +122,7 @@ setTimeout(() => {
   setShowCart={setShowCart}
   logo={logo}
 />
-<ToastNotification
+<CartToast
   toast={toast}
   setToast={setToast}
   setShowCart={setShowCart}
@@ -124,7 +136,11 @@ setTimeout(() => {
       {/* Offer Banner */}
     <OfferBanner />
       {/* Categories */}
-      <Categories categories={categories} />
+      <Categories
+  categories={categories}
+  selectedCategory={selectedCategory}
+  setSelectedCategory={setSelectedCategory}
+/>
 
       {/* Products */}
 <ProductGrid

@@ -1,4 +1,4 @@
-function ToastNotification({
+function CartToast({
   toast,
   setToast,
   setShowCart,
@@ -7,9 +7,7 @@ function ToastNotification({
 
   return (
     <div className="fixed top-5 right-5 bg-white p-4 rounded-xl shadow-2xl z-50 w-80 animate-pulse">
-
       <div className="flex gap-3 items-center">
-
         <img
           src={toast.image}
           alt={toast.name}
@@ -38,11 +36,9 @@ function ToastNotification({
         >
           ✕
         </button>
-
       </div>
-
     </div>
   );
 }
 
-export default ToastNotification;
+export default CartToast;
