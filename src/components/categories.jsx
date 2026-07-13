@@ -1,3 +1,5 @@
+import { CATEGORIES } from "../constants/categories"
+
 const categoryIcons = {
   "Atta & Rice": "🌾",
   "Tea & Coffee": "☕",
@@ -6,7 +8,6 @@ const categoryIcons = {
   "Personal Care": "🧴",
   "Household": "🏠",
 };
-
 function Categories({
   categories,
   selectedCategory,
@@ -19,7 +20,7 @@ function Categories({
       </h2>
 
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {categories.map((category) => (
+        {CATEGORIES.map((category) => (
           <button
             key={category}
             onClick={() =>

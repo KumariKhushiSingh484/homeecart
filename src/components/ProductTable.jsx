@@ -50,7 +50,7 @@ function ProductTable({
 
                 <button
                   onClick={() =>
-                    deleteProduct(product.id)
+                    deleteProduct(product)
                   }
                   className="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
                 >
