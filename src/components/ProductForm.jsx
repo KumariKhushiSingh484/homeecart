@@ -1,5 +1,6 @@
 import { CATEGORIES } from "../constants/categories";
 import { calculatePV } from "../services/pricingService";
+import { PRODUCT_UNITS } from "../constants/productUnits";
 
 function ProductForm({
   // Product Name
@@ -17,6 +18,14 @@ function ProductForm({
   // Inventory
   stock,
   setStock,
+  weight,
+setWeight,
+
+unit,
+setUnit,
+
+maxOrderQuantity,
+setMaxOrderQuantity,
 
   // Category
   category,
@@ -191,12 +200,65 @@ function ProductForm({
           onChange={(e) => setStock(e.target.value)}
         />
       </div>
+      <div className="mt-5">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Maximum Order Quantity
+  </label>
+
+  <input
+    type="number"
+    className="border p-3 w-full rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+    value={maxOrderQuantity}
+    onChange={(e) => setMaxOrderQuantity(e.target.value)}
+    placeholder="e.g. 5"
+    min="1"
+  />
+</div>
 
       {/* ================= Measurement ================= */}
+<h2 className="text-xl font-bold text-green-700 border-b-2 border-green-200 pb-2 mt-8 mb-6">
+  ⚖️ Measurement
+</h2>
 
-      <h2 className="text-xl font-bold text-green-700 border-b-2 border-green-200 pb-2 mt-8 mb-6">
-        ⚖️ Measurement
-      </h2>
+
+<div className="grid grid-cols-2 gap-5">
+
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Weight
+    </label>
+
+    <input
+      type="number"
+      className="border p-3 w-full rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+      value={weight}
+      onChange={(e) => setWeight(e.target.value)}
+    />
+  </div>
+
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Unit
+    </label>
+
+    <select
+      className="border p-3 w-full rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+      value={unit}
+      onChange={(e) => setUnit(e.target.value)}
+    >
+      <option value="">Select Unit</option>
+
+      {PRODUCT_UNITS.map((item) => (
+        <option key={item} value={item}>
+          {item}
+        </option>
+        
+      ))}
+    </select>
+  </div>
+
+</div>
+
 
       <button
         onClick={saveProduct}

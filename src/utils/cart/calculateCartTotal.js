@@ -1,6 +1,8 @@
 export function calculateCartTotal(cartItems) {
   const subtotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) =>
+      total +
+      (item.sellingPrice ?? item.price) * item.quantity,
     0
   );
 

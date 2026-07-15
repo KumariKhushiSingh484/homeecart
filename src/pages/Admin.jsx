@@ -35,6 +35,9 @@ function Admin() {
 const [purchasePrice, setPurchasePrice] = useState("");
 const [mrp, setMrp] = useState("");
   const [stock, setStock] = useState("");
+  const [weight, setWeight] = useState("");
+const [unit, setUnit] = useState("");
+const [maxOrderQuantity, setMaxOrderQuantity] = useState("");
   const [category, setCategory] = useState("");
   const [image, setImage] = useState(null);
 const [imagePreview, setImagePreview] = useState("");
@@ -53,6 +56,9 @@ const resetForm = () => {
   setMrp("");
   setStock("");
   setCategory("");
+  setWeight("");
+  setUnit("");
+  setMaxOrderQuantity("");
   setImage(null);
   setImagePreview("");
 
@@ -103,6 +109,7 @@ const resetForm = () => {
   const editProduct = (product) => {
   setEditingId(product.id);
   setIsEditing(true);
+  setMaxOrderQuantity(product.maxOrderQuantity || "");
 
   setName(product.name);
   setSellingPrice(product.sellingPrice);
@@ -110,7 +117,11 @@ const resetForm = () => {
   setMrp(product.mrp);
 
   setStock(product.stock);
+  
   setCategory(product.category);
+
+  setWeight(product.weight || "");
+  setUnit(product.unit || "");
 
   setImage(null);
   setImagePreview(product.image);
@@ -130,17 +141,25 @@ const resetForm = () => {
       await uploadBytes(imageRef, image);
 
       imageUrl = await getDownloadURL(imageRef);
-    }
+    } // ✅ CLOSE THE IF BLOCK HERE
 
     const productData = {
-  name,
-  sellingPrice: Number(sellingPrice),
-  purchasePrice: Number(purchasePrice),
-  mrp: Number(mrp),
-  stock: Number(stock),
-  category,
-  image: imageUrl,
-};
+      name,
+
+      sellingPrice: Number(sellingPrice),
+      purchasePrice: Number(purchasePrice),
+      mrp: Number(mrp),
+
+      stock: Number(stock),
+
+      weight: Number(weight),
+      unit,
+
+      maxOrderQuantity: Number(maxOrderQuantity),
+
+      category,
+      image: imageUrl,
+    };
 
     if (isEditing) {
       await updateDoc(doc(db, "products", editingId), productData);
@@ -158,67 +177,76 @@ const resetForm = () => {
     showToast("error", "Something went wrong");
   }
 };
+// ==================== Effects ====================
 
-  // ==================== Effects ====================
+useEffect(() => {
+  fetchProducts();
+}, []);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+// ==================== UI ====================
 
-  // ==================== UI ====================
+return (
+  <div className="flex bg-gray-100 min-h-screen">
+    <ToastNotification toast={toast} setToast={setToast} />
 
-  return (
-    <div className="flex bg-gray-100 min-h-screen">
-      <ToastNotification toast={toast} setToast={setToast} />
+    <Sidebar
+      activePage={activePage}
+      setActivePage={setActivePage}
+    />
 
-      <Sidebar
-        activePage={activePage}
-        setActivePage={setActivePage}
-      />
+    <div className="flex-1 p-10">
+      {activePage === "products" && (
+        <>
+          <ProductForm
+            name={name}
+            setName={setName}
 
-      <div className="flex-1 p-10">
-        {activePage === "products" && (
-          <>
-    <ProductForm
-  name={name}
-  setName={setName}
+            sellingPrice={sellingPrice}
+            setSellingPrice={setSellingPrice}
 
-  sellingPrice={sellingPrice}
-  setSellingPrice={setSellingPrice}
+            purchasePrice={purchasePrice}
+            setPurchasePrice={setPurchasePrice}
 
-  purchasePrice={purchasePrice}
-  setPurchasePrice={setPurchasePrice}
+            mrp={mrp}
+            setMrp={setMrp}
 
-  mrp={mrp}
-  setMrp={setMrp}
+            stock={stock}
+            setStock={setStock}
 
-  stock={stock}
-  setStock={setStock}
+            weight={weight}
+            setWeight={setWeight}
 
-  category={category}
-  setCategory={setCategory}
+            unit={unit}
+            setUnit={setUnit}
 
-  imageFile={image}
-  setImageFile={setImage}
+            maxOrderQuantity={maxOrderQuantity}
+            setMaxOrderQuantity={setMaxOrderQuantity}
 
-  imagePreview={imagePreview}
-  setImagePreview={setImagePreview}
+            category={category}
+            setCategory={setCategory}
 
-  saveProduct={saveProduct}
-  isEditing={isEditing}
-/>
-            <ProductTable
-              products={products}
-              deleteProduct={deleteProduct}
-              editProduct={editProduct}
-            />
-          </>
-        )}
+            imageFile={image}
+            setImageFile={setImage}
 
-        {activePage === "orders" && <Orders />}
-      </div>
+            imagePreview={imagePreview}
+            setImagePreview={setImagePreview}
+
+            saveProduct={saveProduct}
+            isEditing={isEditing}
+          />
+
+          <ProductTable
+            products={products}
+            deleteProduct={deleteProduct}
+            editProduct={editProduct}
+          />
+        </>
+      )}
+
+      {activePage === "orders" && <Orders />}
     </div>
-  );
+  </div>
+);
 }
 
 export default Admin;

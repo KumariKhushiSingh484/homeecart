@@ -18,19 +18,28 @@ import Footer from "./components/Footer";
 import { generateInvoice } from "./utils/invoice/generateInvoice";
 import { generateOrderNumber } from "./utils/order/generateOrderNumber";
 import AdminLogin from "./pages/AdminLogin";
+import HeroCarousel from "./components/HeroCarousel";
+import { useCart } from "./context/CartContext";
 function App() {
   const [products, setProducts] = useState([]);
-  const [cartItems, setCartItems] = useState(() => {
-  const savedCart = localStorage.getItem("cartItems");
-  return savedCart ? JSON.parse(savedCart) : [];
-});
+  
   const [showCart, setShowCart] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [toast, setToast] = useState(null);
+  
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
   const [placedOrder, setPlacedOrder] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const {
+  cartItems,
+  addToCart,
+  removeFromCart,
+  clearCart,
+  toast,
+  setToast,
+} = useCart();
+
   console.log("Selected Category:", selectedCategory);
   useEffect(() => {
   const fetchProducts = async () => {
@@ -51,46 +60,8 @@ function App() {
 
   fetchProducts();
 }, []);
-  useEffect(() => {
-  localStorage.setItem("cartItems", JSON.stringify(cartItems));
-}, [cartItems]);
-  const addToCart = (product) => {
-  const existingItem = cartItems.find(
-    (item) => item.name === product.name
-  );
-
-  if (existingItem) {
-    setCartItems(
-      cartItems.map((item) =>
-        item.name === product.name
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
-    );
-  } else {
-    setCartItems([
-      ...cartItems,
-      { ...product, quantity: 1 },
-    ]);
-  }
-
-  setToast(product);
-
-setTimeout(() => {
-  setToast(null);
-}, 3000);
-};
- const removeFromCart = (index) => {
-  const updatedCart = [...cartItems];
-
-  if (updatedCart[index].quantity > 1) {
-    updatedCart[index].quantity -= 1;
-    setCartItems([...updatedCart]);
-  } else {
-    updatedCart.splice(index, 1);
-    setCartItems(updatedCart);
-  }
-};
+  
+ 
 
  const categories = [
   "Atta & Rice",
@@ -117,8 +88,7 @@ setTimeout(() => {
     <div className="min-h-screen bg-gray-100">
 
       {/* Navbar */}
-      <Navbar
-  cartItems={cartItems}
+     <Navbar
   setShowCart={setShowCart}
   logo={logo}
 />
@@ -128,19 +98,15 @@ setTimeout(() => {
   setShowCart={setShowCart}
 />
       {/* Search */}
-     <SearchBar
+     {/* <SearchBar
   searchTerm={searchTerm}
   setSearchTerm={setSearchTerm}
-/>
+/> */}
 
       {/* Offer Banner */}
-    <OfferBanner />
+    <HeroCarousel />
       {/* Categories */}
-      <Categories
-  categories={categories}
-  selectedCategory={selectedCategory}
-  setSelectedCategory={setSelectedCategory}
-/>
+      <Categories />
 
       {/* Products */}
 <ProductGrid
@@ -150,6 +116,7 @@ setTimeout(() => {
 <CartModal
   showCart={showCart}
   setShowCart={setShowCart}
+  setShowCheckout={setShowCheckout}
   cartItems={cartItems}
   addToCart={addToCart}
   removeFromCart={removeFromCart}
@@ -159,19 +126,21 @@ setTimeout(() => {
   orderPlaced={orderPlaced}
   placedOrder={placedOrder}
   generateInvoice={() => generateInvoice(placedOrder)}
-  setCartItems={setCartItems}
+  clearCart={clearCart}
   setShowCart={setShowCart}
   setOrderPlaced={setOrderPlaced}
 />
       {/* Footer */}
-      {!showCart && cartItems.length > 0 && (
- <Checkout
-  cartItems={cartItems}
-  setCartItems={setCartItems}
-  setOrderPlaced={setOrderPlaced}
-  setOrderNumber={setOrderNumber}
-  setPlacedOrder={setPlacedOrder}
-/>
+     {showCheckout && (
+  <Checkout
+    showCheckout={showCheckout}
+    setShowCheckout={setShowCheckout}
+    cartItems={cartItems}
+    clearCart={clearCart}
+    setOrderPlaced={setOrderPlaced}
+    setOrderNumber={setOrderNumber}
+    setPlacedOrder={setPlacedOrder}
+  />
 )}
       <Footer />
     </div>
