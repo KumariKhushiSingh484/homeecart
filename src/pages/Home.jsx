@@ -7,14 +7,10 @@ import HeroCarousel from "../components/HeroCarousel";
 import Categories from "../components/Categories";
 import ProductGrid from "../components/ProductGrid";
 
-import { useCart } from "../context/CartContext";
-
 function Home() {
   const [products, setProducts] = useState([]);
   const [searchTerm] = useState("");
   const [selectedCategory] = useState("");
-
-  const { addToCart } = useCart();
 
   useEffect(() => {
     async function loadProducts() {
@@ -62,7 +58,6 @@ function Home() {
 
       <ProductGrid
         filteredProducts={filteredProducts}
-        addToCart={addToCart}
       />
     </>
   );

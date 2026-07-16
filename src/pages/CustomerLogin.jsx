@@ -6,7 +6,11 @@ function CustomerLogin() {
     const [phone, setPhone] = useState("");
     const navigate = useNavigate();
     useEffect(() => {
+  console.log("CustomerLogin mounted");
+  console.log("auth.currentUser:", auth.currentUser);
+
   if (auth.currentUser) {
+    console.log("Redirecting to home...");
     navigate("/");
   }
 }, [navigate]);

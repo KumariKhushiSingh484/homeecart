@@ -1,72 +1,230 @@
+import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-function ProductCard({ product, addToCart }) {
+import Badge from "./ui/Badge";
+import Card from "./ui/Card";
+import QuantitySelector from "./cart/QuantitySelector";
+
+function ProductCard({ product }) {
   const navigate = useNavigate();
 
+  const sellingPrice = Number(product.sellingPrice || 0);
+  const mrp = Number(product.mrp || 0);
+
+  const discount =
+    mrp > sellingPrice
+      ? Math.round(
+          ((mrp - sellingPrice) / mrp) * 100
+        )
+      : 0;
+
   const savings =
-    Number(product.mrp || 0) - Number(product.sellingPrice || 0);
+    mrp > sellingPrice
+      ? mrp - sellingPrice
+      : 0;
 
   return (
-    <div
-      onClick={() => navigate(`/product/${product.id}`)}
-      className="bg-white rounded-2xl shadow hover:shadow-xl hover:-translate-y-1 transition duration-300 cursor-pointer overflow-hidden"
+    <Card
+      hover
+      padding="none"
+      className="
+        group
+        relative
+        w-full
+        overflow-hidden
+        rounded-3xl
+      "
     >
-      {/* Product Image */}
-      {product.image ? (
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-48 object-cover"
-        />
-      ) : (
-        <div className="w-full h-48 flex items-center justify-center bg-gray-100 text-gray-400">
-          No Image
+      {/* Clickable Area */}
+
+      <div
+        onClick={() =>
+          navigate(`/product/${product.id}`)
+        }
+        className="cursor-pointer"
+      >
+        {/* Top Badges */}
+
+        <div className="absolute left-3 top-3 z-10">
+
+          {discount > 0 && (
+            <Badge variant="success">
+              {discount}% OFF
+            </Badge>
+          )}
+
         </div>
-      )}
 
-      <div className="p-4">
-        {/* Product Name */}
-        <h3 className="font-bold text-lg text-center min-h-[56px]">
-          {product.name}
-        </h3>
+        {/* Wishlist Placeholder */}
 
-        {/* Price */}
-        <div className="text-center mt-3">
-          <span className="text-green-600 font-bold text-2xl">
-            ₹{product.sellingPrice}
-          </span>
+        <button
+          onClick={(e) =>
+            e.stopPropagation()
+          }
+          className="
+            absolute
+            right-3
+            top-3
+            z-10
+            flex
+            h-9
+            w-9
+            items-center
+            justify-center
+            rounded-full
+            bg-white
+            shadow
+            transition
+            hover:bg-gray-100
+          "
+        >
+          <Heart
+            size={18}
+            className="text-gray-500"
+          />
+        </button>
 
-          {product.mrp > product.sellingPrice && (
-            <span className="line-through text-gray-500 ml-2">
-              ₹{product.mrp}
-            </span>
+        {/* Image */}
+
+        <div
+          className="
+            flex
+            h-40
+            items-center
+            justify-center
+            bg-white
+            p-5
+          "
+        >
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.name}
+              className="
+                h-full
+                w-full
+                object-contain
+                transition-transform
+                duration-300
+                group-hover:scale-105
+              "
+            />
+          ) : (
+            <div
+              className="
+                flex
+                h-full
+                w-full
+                items-center
+                justify-center
+                rounded-2xl
+                bg-gray-100
+                text-gray-400
+              "
+            >
+              No Image
+            </div>
           )}
         </div>
 
-        {/* Savings */}
-        {savings > 0 && (
-          <div className="text-center text-red-500 font-semibold mt-1">
-            Save ₹{savings}
-          </div>
-        )}
+        {/* Content */}
 
-        {/* Weight */}
-        <div className="text-center text-gray-500 text-sm mt-2">
-          {product.weight} {product.unit}
+        <div className="space-y-3 p-4">
+
+          {/* Product Name */}
+
+          <h3
+            className="
+              min-h-[44px]
+              line-clamp-2
+              text-sm
+              font-semibold
+              text-gray-900
+            "
+          >
+            {product.name}
+          </h3>
+
+          {/* Weight */}
+
+          <div>
+
+            <span
+              className="
+                rounded-full
+                bg-gray-100
+                px-3
+                py-1
+                text-xs
+                font-medium
+                text-gray-600
+              "
+            >
+              {product.weight} {product.unit}
+            </span>
+
+          </div>
+
+          {/* Price */}
+
+          <div>
+
+            <div className="flex items-center gap-2">
+
+              <span
+                className="
+                  text-2xl
+                  font-bold
+                  text-green-700
+                "
+              >
+                ₹{sellingPrice}
+              </span>
+
+              {mrp > sellingPrice && (
+                <span
+                  className="
+                    text-sm
+                    text-gray-400
+                    line-through
+                  "
+                >
+                  ₹{mrp}
+                </span>
+              )}
+
+            </div>
+
+            {savings > 0 && (
+              <p
+                className="
+                  mt-1
+                  text-xs
+                  font-medium
+                  text-green-600
+                "
+              >
+                Save ₹{savings}
+              </p>
+            )}
+
+          </div>
+
         </div>
 
-        {/* Add to Cart */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation(); // Prevent navigation
-            addToCart(product);
-          }}
-          className="mt-5 w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition"
-        >
-          Add to Cart
-        </button>
       </div>
-    </div>
+
+      {/* Quantity */}
+
+      <div className="px-4 pb-4">
+
+        <QuantitySelector
+          product={product}
+        />
+
+      </div>
+
+    </Card>
   );
 }
 

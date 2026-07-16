@@ -1,4 +1,5 @@
 import { createContext, useContext, useState } from "react";
+import { useEffect } from "react";
 
 const ShoppingContext = createContext();
 
@@ -10,7 +11,14 @@ export function ShoppingProvider({ children }) {
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const [orderPlaced, setOrderPlaced] = useState(false);
-
+useEffect(() => {
+  console.log(
+    "showCart:",
+    showCart,
+    "| showCheckout:",
+    showCheckout
+  );
+}, [showCart, showCheckout]);
   // =========================
   // Order State
   // =========================
@@ -61,6 +69,14 @@ export function ShoppingProvider({ children }) {
     setOrderNumber("");
   };
 
+  const resetShopping = () => {
+    setShowCart(false);
+    setShowCheckout(false);
+    setOrderPlaced(false);
+    setPlacedOrder(null);
+    setOrderNumber("");
+  };
+
   return (
     <ShoppingContext.Provider
       value={{
@@ -82,6 +98,7 @@ export function ShoppingProvider({ children }) {
         // Order
         completeOrder,
         closeOrderSuccess,
+        resetShopping,
       }}
     >
       {children}
@@ -90,5 +107,13 @@ export function ShoppingProvider({ children }) {
 }
 
 export function useShopping() {
-  return useContext(ShoppingContext);
+  const context = useContext(ShoppingContext);
+
+  if (!context) {
+    throw new Error(
+      "useShopping must be used inside ShoppingProvider."
+    );
+  }
+
+  return context;
 }

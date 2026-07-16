@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -9,6 +10,10 @@ import {
 import { calculateCartTotal } from "../utils/cart/calculateCartTotal";
 
 const CartContext = createContext();
+
+function getSafeQuantity(requested, stock = Infinity) {
+  return Math.min(requested, stock ?? Infinity);
+}
 
 export function CartProvider({ children }) {
   const [cartItems, setCartItems] = useState(() => {
@@ -51,16 +56,14 @@ export function CartProvider({ children }) {
       );
 
       if (existingItem) {
-        const updatedQuantity = Math.min(
-          existingItem.quantity + quantity,
-          product.stock ?? Infinity
-        );
-
         return prevCart.map((item) =>
           item.id === product.id
             ? {
                 ...item,
-                quantity: updatedQuantity,
+                quantity: getSafeQuantity(
+                  item.quantity + quantity,
+                  item.stock
+                ),
               }
             : item
         );
@@ -70,9 +73,9 @@ export function CartProvider({ children }) {
         ...prevCart,
         {
           ...product,
-          quantity: Math.min(
+          quantity: getSafeQuantity(
             quantity,
-            product.stock ?? quantity
+            product.stock
           ),
         },
       ];
@@ -84,13 +87,15 @@ export function CartProvider({ children }) {
   const increaseQuantity = (productId) => {
     setCartItems((prevCart) =>
       prevCart.map((item) => {
-        if (item.id !== productId) return item;
+        if (item.id !== productId) {
+          return item;
+        }
 
         return {
           ...item,
-          quantity: Math.min(
+          quantity: getSafeQuantity(
             item.quantity + 1,
-            item.stock ?? Infinity
+            item.stock
           ),
         };
       })
@@ -103,7 +108,9 @@ export function CartProvider({ children }) {
         (product) => product.id === productId
       );
 
-      if (!item) return prevCart;
+      if (!item) {
+        return prevCart;
+      }
 
       if (item.quantity === 1) {
         return prevCart.filter(
@@ -139,37 +146,63 @@ export function CartProvider({ children }) {
     0
   );
 
+  const cartItemsMap = useMemo(() => {
+    return new Map(
+      cartItems.map((item) => [
+        item.id,
+        item,
+      ])
+    );
+  }, [cartItems]);
+
+  const getProductQuantity = (productId) => {
+    return (
+      cartItemsMap.get(productId)?.quantity ?? 0
+    );
+  };
+
   const {
     subtotal: cartSubtotal,
     delivery: cartDelivery,
     total: cartTotal,
   } = calculateCartTotal(cartItems);
 
+  const value = {
+    cartItems,
+    cartItemsMap,
+
+    cartCount,
+    cartSubtotal,
+    cartDelivery,
+    cartTotal,
+
+    addToCart,
+    increaseQuantity,
+    decreaseQuantity,
+    deleteFromCart,
+    clearCart,
+
+    getProductQuantity,
+
+    toast,
+    setToast,
+  };
+
   return (
-    <CartContext.Provider
-      value={{
-        cartItems,
-
-        cartCount,
-        cartSubtotal,
-        cartDelivery,
-        cartTotal,
-
-        addToCart,
-        increaseQuantity,
-        decreaseQuantity,
-        deleteFromCart,
-        clearCart,
-
-        toast,
-        setToast,
-      }}
-    >
+    <CartContext.Provider value={value}>
       {children}
     </CartContext.Provider>
   );
 }
 
 export function useCart() {
-  return useContext(CartContext);
+  const context = useContext(CartContext);
+
+  if (!context) {
+    throw new Error(
+      "useCart must be used within a CartProvider"
+    );
+  }
+
+  return context;
 }

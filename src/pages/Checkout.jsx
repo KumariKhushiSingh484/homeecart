@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { createOrder } from "../services/orderService";
 
@@ -13,8 +13,10 @@ import AppToast from "../components/AppToast";
 import OrderSummary from "../components/OrderSummary";
 
 import useToast from "../hooks/useToast";
+
 import { useCart } from "../context/CartContext";
 import { useShopping } from "../context/ShoppingContext";
+import { useCustomer } from "../context/CustomerContext";
 
 function Checkout() {
   const {
@@ -28,6 +30,19 @@ function Checkout() {
     closeCheckout,
     completeOrder,
   } = useShopping();
+
+  
+  const {
+    authUser,
+    customer,
+    loadingCustomer,
+  } = useCustomer();
+
+  console.log({
+  showCheckout,
+  loadingCustomer,
+  customer,
+});
 
   const [customerName, setCustomerName] =
     useState("");
@@ -50,109 +65,128 @@ function Checkout() {
     showToast,
   } = useToast();
 
-  if (!showCheckout) return null;
+  useEffect(() => {
+    if (!customer) return;
 
-  const getLocation = () => {
-    if (!navigator.geolocation) {
+    setCustomerName(customer.name || "");
+
+    setPhone(customer.phone || "");
+
+   setAddress(customer.address || "");
+  }, [customer]);
+if (!showCheckout) return null;
+
+if (loadingCustomer) {
+  return null;
+}
+if (!customer) {
+  return null;
+}
+
+const getLocation = () => {
+  if (!navigator.geolocation) {
+    showToast(
+      "error",
+      "Geolocation is not supported."
+    );
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      setLocation(
+        `https://maps.google.com/?q=${lat},${lng}`
+      );
+    },
+    () => {
       showToast(
         "error",
-        "Geolocation is not supported."
+        "Unable to fetch location."
       );
-      return;
     }
+  );
+};
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat =
-          position.coords.latitude;
+const placeOrder = async () => {
+  if (isPlacingOrder) return;
 
-        const lng =
-          position.coords.longitude;
+  const validation = validateCheckout({
+    customerName,
+    phone,
+    address,
+    cartItems,
+  });
 
-        setLocation(
-          `https://maps.google.com/?q=${lat},${lng}`
-        );
-      },
-      () => {
-        showToast(
-          "error",
-          "Unable to fetch location."
-        );
-      }
+  if (!validation.isValid) {
+    showToast(
+      "error",
+      validation.message
     );
-  };
+    return;
+  }
 
-  const placeOrder = async () => {
-    if (isPlacingOrder) return;
+  if (!authUser) {
+    showToast(
+      "error",
+      "Please login again."
+    );
+    return;
+  }
 
-    const validation = validateCheckout({
+  setIsPlacingOrder(true);
+
+  try {
+    const orderNumber = generateOrderNumber();
+
+    const order = {
+      uid: authUser.uid,
+      orderNumber,
       customerName,
       phone,
       address,
-      cartItems,
-    });
+      location,
+      items: cartItems,
+      total: cartTotal,
+      status: ORDER_STATUS.PENDING,
+    };
 
-    if (!validation.isValid) {
-      showToast(
-        "error",
-        validation.message
-      );
-      return;
-    }
+    await createOrder(order);
 
-    setIsPlacingOrder(true);
+    const message = formatOrderMessage(order);
 
-    try {      const orderNumber = generateOrderNumber();
+    window.open(
+      `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+        message
+      )}`,
+      "_blank"
+    );
 
-      const order = {
-        orderNumber,
-        customerName,
-        phone,
-        address,
-        location,
-        items: cartItems,
-        total: cartTotal,
-        status: ORDER_STATUS.PENDING,
-      };
+    completeOrder(order);
+    clearCart();
+  } catch (error) {
+    console.error(error);
 
-      // Save order in Firestore
-      await createOrder(order);
+    showToast(
+      "error",
+      "Failed to place order."
+    );
+  } finally {
+    setIsPlacingOrder(false);
+  }
+};
 
-      // Generate WhatsApp message
-      const message = formatOrderMessage(order);
-
-      // Open WhatsApp
-      window.open(
-        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-          message
-        )}`,
-        "_blank"
-      );
-
-      // Update shopping flow
-      completeOrder(order);
-
-      // Clear customer cart
-      clearCart();
-    } catch (error) {
-      console.error(error);
-
-      showToast(
-        "error",
-        "Failed to place order. Please try again."
-      );
-    } finally {
-      setIsPlacingOrder(false);
-    }
-  };  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+return (   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
 
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-white shadow-2xl">
 
         {/* Close Button */}
+
         <button
           onClick={closeCheckout}
-          className="absolute right-5 top-5 text-2xl text-gray-500 hover:text-red-600 transition"
+          className="absolute top-5 right-5 text-2xl text-gray-500 hover:text-red-600 transition"
         >
           ✕
         </button>
@@ -170,85 +204,105 @@ function Checkout() {
 
           <OrderSummary />
 
-          {/* Customer Name */}
+          {/* Customer Information */}
 
-          <input
-            className="mt-6 w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-green-500"
-            placeholder="Customer Name"
-            value={customerName}
-            onChange={(e) =>
-              setCustomerName(e.target.value)
-            }
-          />
+          <div className="mt-8">
 
-          {/* Phone */}
+            <h2 className="text-xl font-semibold mb-4">
+              Customer Information
+            </h2>
 
-          <input
-            className="mt-4 w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-green-500"
-            placeholder="Phone Number"
-            value={phone}
-            onChange={(e) =>
-              setPhone(e.target.value)
-            }
-          />
+            {/* Name */}
 
-          {/* Address */}
+            <input
+              type="text"
+              value={customerName}
+              readOnly
+              className="w-full rounded-xl border bg-gray-100 p-4 text-gray-700 cursor-not-allowed"
+            />
 
-          <textarea
-            rows="4"
-            className="mt-4 w-full rounded-xl border p-4 resize-none focus:outline-none focus:ring-2 focus:ring-green-500"
-            placeholder="Delivery Address"
-            value={address}
-            onChange={(e) =>
-              setAddress(e.target.value)
-            }
-          />
+            <p className="mt-2 text-sm text-gray-500">
+              Name is taken from your profile.
+            </p>
+
+            {/* Phone */}
+
+            <input
+              type="text"
+              value={phone}
+              readOnly
+              className="mt-5 w-full rounded-xl border bg-gray-100 p-4 text-gray-700 cursor-not-allowed"
+            />
+
+            <p className="mt-2 text-sm text-gray-500">
+              Phone number cannot be changed during checkout.
+            </p>
+
+          </div>
+
+          {/* Delivery Address */}
+
+          <div className="mt-8">
+
+            <h2 className="text-xl font-semibold mb-4">
+              Delivery Address
+            </h2>
+
+            <textarea
+              rows="4"
+              value={address}
+              onChange={(e) =>
+                setAddress(e.target.value)
+              }
+              className="w-full resize-none rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-green-500"
+              placeholder="Enter delivery address"
+            />
+
+          </div>
 
           {/* Location */}
 
           <button
             type="button"
             onClick={getLocation}
-            className="mt-4 w-full rounded-xl bg-blue-600 py-4 text-white font-semibold hover:bg-blue-700 transition"
+            className="mt-6 w-full rounded-xl bg-blue-600 py-4 font-semibold text-white transition hover:bg-blue-700"
           >
             📍 Use My Current Location
           </button>
 
           {location && (
             <div className="mt-4 rounded-xl border border-green-300 bg-green-100 p-4 text-green-700">
-              ✅ Location captured successfully.
+              ✅ Current location captured successfully.
             </div>
           )}
 
           {/* Total */}
+          <div className="mt-8 rounded-2xl border border-green-200 bg-green-50 p-5 flex items-center justify-between">
 
-          <div className="mt-8 rounded-2xl bg-green-50 border border-green-200 p-5 flex items-center justify-between">
+  <span className="text-lg font-semibold">
+    Total Amount
+  </span>
 
-            <span className="text-lg font-semibold">
-              Total Amount
-            </span>
+  <span className="text-3xl font-bold text-green-700">
+    ₹{cartTotal}
+  </span>
 
-            <span className="text-3xl font-bold text-green-700">
-              ₹{cartTotal}
-            </span>
+</div>
+{/* Place Order */}
 
-          </div>
-
-          {/* Place Order */}
-
-          <button
-            onClick={placeOrder}
-            disabled={isPlacingOrder}
-            className={`mt-8 w-full rounded-xl py-4 text-lg font-bold text-white transition ${
-              isPlacingOrder
-                ? "cursor-not-allowed bg-gray-400"
-                : "bg-green-600 hover:bg-green-700"
-            }`}
-          >
-            {isPlacingOrder
-              ? "Placing Order..."
-              : "Place Order"}
-          </button>
+<button
+  onClick={placeOrder}
+  disabled={isPlacingOrder}
+  className={`mt-8 w-full rounded-xl py-4 text-lg font-bold text-white transition ${
+    isPlacingOrder
+      ? "cursor-not-allowed bg-gray-400"
+      : "bg-green-600 hover:bg-green-700"
+  }`}
+>
+  {isPlacingOrder
+    ? "Placing Order..."
+    : "Place Order"}
+</button>
 
         </div>
 

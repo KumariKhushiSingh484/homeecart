@@ -18,7 +18,13 @@ export function validateCheckout({
     };
   }
 
-  if (!/^[6-9]\d{9}$/.test(phone)) {
+  // Remove spaces and +91 if present
+  const normalizedPhone = phone
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/^(\+91|91)/, "");
+
+  if (!/^[6-9]\d{9}$/.test(normalizedPhone)) {
     return {
       isValid: false,
       message: "Please enter a valid 10-digit phone number.",

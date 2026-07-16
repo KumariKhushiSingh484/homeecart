@@ -1,0 +1,11 @@
+[33m25e888b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Sprint 2.3: complete routing and customer layout architecture
+[33m8d473dd[m feat(product): redesign product form and pricing foundation
+[33m8944f2b[m[33m ([m[1;31morigin/master[m[33m)[m Implement customer authentication and profile management
+[33ma3a4aee[m refactor: improve checkout architecture and business logic
+[33m575c915[m refactor: extract Navbar component from App
+[33ma34863b[m Complete product CRUD and refactor admin components
+[33me5ba8c2[m Fixed responsive navbar
+[33mfbbccdf[m Responsive UI update
+[33m8fa1df3[m Added professional invoice features
+[33me69a1e9[m Added order success popup and delivery charges
+[33m709438a[m HomeEcart with working cart popup
