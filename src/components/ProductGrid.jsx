@@ -1,11 +1,9 @@
 import ProductCard from "./ProductCard";
-
 import EmptyState from "./ui/EmptyState";
-
 import SectionHeader from "./ui/SectionHeader";
 
 function ProductGrid({
-  title = "Products",
+  title = "",
   products = [],
   filteredProducts,
 }) {
@@ -13,12 +11,16 @@ function ProductGrid({
     filteredProducts ?? products;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-10">
+    <section className="mx-auto w-full max-w-screen-2xl px-4 py-6">
 
-      <SectionHeader
-        title={title}
-        subtitle={`${displayProducts.length} Products`}
-      />
+      {/* Optional Header */}
+
+      {title && (
+        <SectionHeader
+          title={title}
+          subtitle={`${displayProducts.length} Products`}
+        />
+      )}
 
       {displayProducts.length === 0 ? (
         <EmptyState
@@ -31,11 +33,13 @@ function ProductGrid({
           className="
             grid
             grid-cols-2
-            gap-4
-            sm:grid-cols-2
-            md:grid-cols-3
-            lg:grid-cols-4
-            xl:grid-cols-5
+            gap-3
+
+            sm:grid-cols-3
+            md:grid-cols-4
+            lg:grid-cols-5
+            xl:grid-cols-6
+            2xl:grid-cols-7
           "
         >
           {displayProducts.map((product) => (
@@ -46,7 +50,6 @@ function ProductGrid({
           ))}
         </div>
       )}
-
     </section>
   );
 }

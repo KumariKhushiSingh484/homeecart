@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { db } from "../services/firebase";
+
 import {
   collection,
   addDoc,
@@ -9,172 +9,365 @@ import {
   doc,
 } from "firebase/firestore";
 
-import Sidebar from "../components/Sidebar";
-import ProductTable from "../components/ProductTable";
-import ProductForm from "../components/ProductForm";
-import ToastNotification from "../components/AppToast";
-import Orders from "./Orders";
-import useToast from "../hooks/useToast";
-import { storage } from "../services/firebase";
 import {
   ref,
   uploadBytes,
   getDownloadURL,
   deleteObject,
 } from "firebase/storage";
+
+import { db, storage } from "../services/firebase";
+
+import Sidebar from "../components/Sidebar";
+import ProductTable from "../components/ProductTable";
+import ProductForm from "../components/ProductForm";
+import ToastNotification from "../components/AppToast";
+
+import Orders from "./Orders";
+
+import useToast from "../hooks/useToast";
+
+import CategoryManagement from "./CategoryManagement";
+
 function Admin() {
   // ==================== UI State ====================
-  const [activePage, setActivePage] = useState("products");
 
-  // ==================== Data State ====================
-  const [products, setProducts] = useState([]);
+  const [activePage, setActivePage] =
+    useState("products");
 
-  // ==================== Form State ====================
-  const [name, setName] = useState("");
-  const [sellingPrice, setSellingPrice] = useState("");
-const [purchasePrice, setPurchasePrice] = useState("");
-const [mrp, setMrp] = useState("");
-  const [stock, setStock] = useState("");
-  const [weight, setWeight] = useState("");
-const [unit, setUnit] = useState("");
-const [maxOrderQuantity, setMaxOrderQuantity] = useState("");
-  const [category, setCategory] = useState("");
-  const [image, setImage] = useState(null);
-const [imagePreview, setImagePreview] = useState("");
 
-  // ==================== Edit State ====================
-  const [editingId, setEditingId] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
-const { toast, setToast, showToast } = useToast();
-  // ==================== Helper Functions ====================
+  // ==================== Data ====================
 
-  
-const resetForm = () => {
-  setName("");
-  setSellingPrice("");
-  setPurchasePrice("");
-  setMrp("");
-  setStock("");
-  setCategory("");
-  setWeight("");
-  setUnit("");
-  setMaxOrderQuantity("");
-  setImage(null);
-  setImagePreview("");
+  const [products, setProducts] =
+    useState([]);
 
-  setEditingId(null);
-  setIsEditing(false);
-};
+  // ==================== Product Form ====================
 
-  // ==================== Firebase Functions ====================
+  const [name, setName] =
+    useState("");
 
-  const fetchProducts = async () => {
-    try {
-      const querySnapshot = await getDocs(collection(db, "products"));
+  // Pricing
 
-      const productList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+  const [
+    sellingPrice,
+    setSellingPrice,
+  ] = useState("");
 
-      setProducts(productList);
-    } catch (error) {
-      console.error("Error loading products:", error);
-      showToast("error", "Failed to load products");
-    }
+  const [
+    purchasePrice,
+    setPurchasePrice,
+  ] = useState("");
+
+  const [mrp, setMrp] =
+    useState("");
+
+  // Inventory
+
+  const [stock, setStock] =
+    useState("");
+
+  // Measurement
+
+  const [weight, setWeight] =
+    useState("");
+
+  const [unit, setUnit] =
+    useState("");
+
+  // Business Rules
+
+  const [
+    maximumOrderQuantity,
+    setMaximumOrderQuantity,
+  ] = useState(10);
+
+  // Category
+
+  const [
+    category,
+    setCategory,
+  ] = useState("");
+
+  // Image
+
+  const [image, setImage] =
+    useState(null);
+
+  const [
+    imagePreview,
+    setImagePreview,
+  ] = useState("");
+
+  // ==================== Edit ====================
+
+  const [
+    editingId,
+    setEditingId,
+  ] = useState(null);
+
+  const [
+    isEditing,
+    setIsEditing,
+  ] = useState(false);
+
+  // ==================== Toast ====================
+
+  const {
+    toast,
+    setToast,
+    showToast,
+  } = useToast();
+
+  // ==================== Helpers ====================
+
+  const resetForm = () => {
+    setName("");
+
+    setSellingPrice("");
+    setPurchasePrice("");
+    setMrp("");
+
+    setStock("");
+
+    setWeight("");
+    setUnit("");
+
+    setMaximumOrderQuantity(10);
+
+    setCategory("");
+
+    setImage(null);
+    setImagePreview("");
+
+    setEditingId(null);
+    setIsEditing(false);
   };
 
- const deleteProduct = async (product) => {
-  if (!window.confirm("Delete this product?")) return;
+// ==================== Firebase ====================
+
+const fetchProducts = async () => {
+  try {
+    const querySnapshot = await getDocs(
+      collection(db, "products")
+    );
+
+    const productList = querySnapshot.docs.map(
+      (document) => ({
+        id: document.id,
+        ...document.data(),
+      })
+    );
+
+    setProducts(productList);
+  } catch (error) {
+    console.error(
+      "Error loading products:",
+      error
+    );
+
+    showToast(
+      "error",
+      "Failed to load products"
+    );
+  }
+};
+
+const deleteProduct = async (product) => {
+  if (
+    !window.confirm(
+      "Delete this product?"
+    )
+  ) {
+    return;
+  }
 
   try {
-    // Delete image from Firebase Storage (if it exists)
+    // Delete image from Firebase Storage
     if (product.image) {
-      const imageRef = ref(storage, product.image);
+      const imageRef = ref(
+        storage,
+        product.image
+      );
+
       await deleteObject(imageRef);
     }
 
     // Delete Firestore document
-    await deleteDoc(doc(db, "products", product.id));
+    await deleteDoc(
+      doc(db, "products", product.id)
+    );
 
     await fetchProducts();
 
-    showToast("success", "Product deleted successfully");
+    showToast(
+      "success",
+      "Product deleted successfully"
+    );
   } catch (error) {
-    console.error("Delete Error:", error);
+    console.error(
+      "Delete Error:",
+      error
+    );
 
-    showToast("error", "Failed to delete product");
+    showToast(
+      "error",
+      "Failed to delete product"
+    );
   }
 };
-  const editProduct = (product) => {
+
+const editProduct = (product) => {
   setEditingId(product.id);
+
   setIsEditing(true);
-  setMaxOrderQuantity(product.maxOrderQuantity || "");
+
+  // Basic Information
 
   setName(product.name);
-  setSellingPrice(product.sellingPrice);
-  setPurchasePrice(product.purchasePrice);
-  setMrp(product.mrp);
 
-  setStock(product.stock);
-  
   setCategory(product.category);
 
-  setWeight(product.weight || "");
-  setUnit(product.unit || "");
+  // Pricing
+
+  setSellingPrice(
+    product.sellingPrice
+  );
+
+  setPurchasePrice(
+    product.purchasePrice
+  );
+
+  setMrp(product.mrp);
+
+  // Inventory
+
+  setStock(product.stock);
+
+  // Measurement
+
+  setWeight(
+    product.weight ?? ""
+  );
+
+  setUnit(
+    product.unit ?? ""
+  );
+
+  // Business Rule
+
+  setMaximumOrderQuantity(
+    product.maximumOrderQuantity ??
+      10
+  );
+
+  // Image
 
   setImage(null);
-  setImagePreview(product.image);
+
+  setImagePreview(
+    product.image ?? ""
+  );
 };
 
-  const saveProduct = async () => {
+const saveProduct = async () => {
   try {
     let imageUrl = imagePreview;
 
-    // Upload only if a new image is selected
+    // Upload new image only if selected
+
     if (image) {
       const imageRef = ref(
         storage,
         `products/${Date.now()}-${image.name}`
       );
 
-      await uploadBytes(imageRef, image);
+      await uploadBytes(
+        imageRef,
+        image
+      );
 
-      imageUrl = await getDownloadURL(imageRef);
-    } // ✅ CLOSE THE IF BLOCK HERE
+      imageUrl =
+        await getDownloadURL(
+          imageRef
+        );
+    }
 
     const productData = {
-      name,
+      // Basic Information
 
-      sellingPrice: Number(sellingPrice),
-      purchasePrice: Number(purchasePrice),
+      name: name.trim(),
+
+      category,
+
+      image: imageUrl,
+
+      // Pricing
+
+      sellingPrice:
+        Number(sellingPrice),
+
+      purchasePrice:
+        Number(purchasePrice),
+
       mrp: Number(mrp),
+
+      // Inventory
 
       stock: Number(stock),
 
+      // Measurement
+
       weight: Number(weight),
+
       unit,
 
-      maxOrderQuantity: Number(maxOrderQuantity),
+      // Business Rules
 
-      category,
-      image: imageUrl,
+      maximumOrderQuantity:
+        Number(
+          maximumOrderQuantity
+        ),
     };
 
     if (isEditing) {
-      await updateDoc(doc(db, "products", editingId), productData);
-      showToast("success", "Product updated successfully");
+      await updateDoc(
+        doc(
+          db,
+          "products",
+          editingId
+        ),
+        productData
+      );
+
+      showToast(
+        "success",
+        "Product updated successfully"
+      );
     } else {
-      await addDoc(collection(db, "products"), productData);
-      showToast("success", "Product added successfully");
+      await addDoc(
+        collection(
+          db,
+          "products"
+        ),
+        productData
+      );
+
+      showToast(
+        "success",
+        "Product added successfully"
+      );
     }
 
     resetForm();
-    fetchProducts();
 
+    await fetchProducts();
   } catch (error) {
     console.error(error);
-    showToast("error", "Something went wrong");
+
+    showToast(
+      "error",
+      "Something went wrong"
+    );
   }
 };
 // ==================== Effects ====================
@@ -186,8 +379,11 @@ useEffect(() => {
 // ==================== UI ====================
 
 return (
-  <div className="flex bg-gray-100 min-h-screen">
-    <ToastNotification toast={toast} setToast={setToast} />
+  <div className="flex min-h-screen bg-gray-100">
+    <ToastNotification
+      toast={toast}
+      setToast={setToast}
+    />
 
     <Sidebar
       activePage={activePage}
@@ -198,9 +394,11 @@ return (
       {activePage === "products" && (
         <>
           <ProductForm
+            // Product Name
             name={name}
             setName={setName}
 
+            // Pricing
             sellingPrice={sellingPrice}
             setSellingPrice={setSellingPrice}
 
@@ -210,40 +408,58 @@ return (
             mrp={mrp}
             setMrp={setMrp}
 
+            // Inventory
             stock={stock}
             setStock={setStock}
 
+            // Measurement
             weight={weight}
             setWeight={setWeight}
 
             unit={unit}
             setUnit={setUnit}
 
-            maxOrderQuantity={maxOrderQuantity}
-            setMaxOrderQuantity={setMaxOrderQuantity}
+            // Business Rule
+            maximumOrderQuantity={
+              maximumOrderQuantity
+            }
+            setMaximumOrderQuantity={
+              setMaximumOrderQuantity
+            }
 
+            // Category
             category={category}
             setCategory={setCategory}
 
+            // Image
             imageFile={image}
             setImageFile={setImage}
 
             imagePreview={imagePreview}
-            setImagePreview={setImagePreview}
+            setImagePreview={
+              setImagePreview
+            }
 
+            // Actions
             saveProduct={saveProduct}
             isEditing={isEditing}
           />
 
           <ProductTable
             products={products}
-            deleteProduct={deleteProduct}
+            deleteProduct={
+              deleteProduct
+            }
             editProduct={editProduct}
           />
         </>
       )}
-
-      {activePage === "orders" && <Orders />}
+{activePage === "categories" && (
+  <CategoryManagement />
+)}
+      {activePage === "orders" && (
+        <Orders />
+      )}
     </div>
   </div>
 );

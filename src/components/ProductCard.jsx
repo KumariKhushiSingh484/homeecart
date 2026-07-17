@@ -23,6 +23,9 @@ function ProductCard({ product }) {
       ? mrp - sellingPrice
       : 0;
 
+  const inStock =
+    Number(product.stock || 0) > 0;
+
   return (
     <Card
       hover
@@ -32,7 +35,9 @@ function ProductCard({ product }) {
         relative
         w-full
         overflow-hidden
-        rounded-3xl
+        rounded-2xl
+        transition-all
+        duration-300
       "
     >
       {/* Clickable Area */}
@@ -43,19 +48,17 @@ function ProductCard({ product }) {
         }
         className="cursor-pointer"
       >
-        {/* Top Badges */}
+        {/* Discount Badge */}
 
         <div className="absolute left-3 top-3 z-10">
-
           {discount > 0 && (
             <Badge variant="success">
               {discount}% OFF
             </Badge>
           )}
-
         </div>
 
-        {/* Wishlist Placeholder */}
+        {/* Wishlist */}
 
         <button
           onClick={(e) =>
@@ -67,39 +70,41 @@ function ProductCard({ product }) {
             top-3
             z-10
             flex
-            h-9
-            w-9
+            h-8
+            w-8
             items-center
             justify-center
             rounded-full
-            bg-white
+            bg-white/90
             shadow
+            backdrop-blur
             transition
-            hover:bg-gray-100
+            hover:bg-white
           "
         >
           <Heart
-            size={18}
+            size={17}
             className="text-gray-500"
           />
         </button>
 
-        {/* Image */}
+        {/* Product Image */}
 
         <div
           className="
             flex
-            h-40
+            h-32
             items-center
             justify-center
             bg-white
-            p-5
+            p-4
           "
         >
           {product.image ? (
             <img
               src={product.image}
               alt={product.name}
+              loading="lazy"
               className="
                 h-full
                 w-full
@@ -117,8 +122,9 @@ function ProductCard({ product }) {
                 w-full
                 items-center
                 justify-center
-                rounded-2xl
+                rounded-xl
                 bg-gray-100
+                text-sm
                 text-gray-400
               "
             >
@@ -129,16 +135,16 @@ function ProductCard({ product }) {
 
         {/* Content */}
 
-        <div className="space-y-3 p-4">
-
-          {/* Product Name */}
+        <div className="space-y-2 p-3">
+          {/* Name */}
 
           <h3
             className="
-              min-h-[44px]
+              min-h-[38px]
               line-clamp-2
               text-sm
               font-semibold
+              leading-5
               text-gray-900
             "
           >
@@ -147,33 +153,28 @@ function ProductCard({ product }) {
 
           {/* Weight */}
 
-          <div>
-
-            <span
-              className="
-                rounded-full
-                bg-gray-100
-                px-3
-                py-1
-                text-xs
-                font-medium
-                text-gray-600
-              "
-            >
-              {product.weight} {product.unit}
-            </span>
-
-          </div>
+          <span
+            className="
+              inline-block
+              rounded-full
+              bg-gray-100
+              px-2
+              py-0.5
+              text-[11px]
+              font-medium
+              text-gray-600
+            "
+          >
+            {product.weight} {product.unit}
+          </span>
 
           {/* Price */}
 
           <div>
-
             <div className="flex items-center gap-2">
-
               <span
                 className="
-                  text-2xl
+                  text-xl
                   font-bold
                   text-green-700
                 "
@@ -192,13 +193,11 @@ function ProductCard({ product }) {
                   ₹{mrp}
                 </span>
               )}
-
             </div>
 
             {savings > 0 && (
               <p
                 className="
-                  mt-1
                   text-xs
                   font-medium
                   text-green-600
@@ -207,23 +206,33 @@ function ProductCard({ product }) {
                 Save ₹{savings}
               </p>
             )}
-
           </div>
-
         </div>
-
       </div>
 
-      {/* Quantity */}
+      {/* Bottom Action */}
 
-      <div className="px-4 pb-4">
-
-        <QuantitySelector
-          product={product}
-        />
-
+      <div className="px-3 pb-3">
+        {inStock ? (
+          <QuantitySelector
+            product={product}
+          />
+        ) : (
+          <div
+            className="
+              rounded-lg
+              bg-red-50
+              py-2
+              text-center
+              text-sm
+              font-semibold
+              text-red-600
+            "
+          >
+            Out of Stock
+          </div>
+        )}
       </div>
-
     </Card>
   );
 }

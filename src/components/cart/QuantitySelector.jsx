@@ -17,12 +17,23 @@ function QuantitySelector({
 
   const quantity = getProductQuantity(product.id);
 
+  // Inventory
   const stock = product.stock ?? Infinity;
+
+  // Business Rule
+  const maximumOrderQuantity =
+    product.maximumOrderQuantity ?? 10;
+
+  // Customer cannot exceed either stock or configured limit
+  const effectiveMaxQuantity = Math.min(
+    stock,
+    maximumOrderQuantity
+  );
 
   const isOutOfStock = stock <= 0;
 
   const isMaxReached =
-    quantity >= stock;
+    quantity >= effectiveMaxQuantity;
 
   const sizeClasses = {
     sm: {

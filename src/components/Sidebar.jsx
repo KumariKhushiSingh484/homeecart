@@ -14,7 +14,16 @@ function Sidebar({ activePage, setActivePage }) {
         >
           📦 Products
         </li>
-
+<li
+  onClick={() => setActivePage("categories")}
+  className={`cursor-pointer p-2 rounded ${
+    activePage === "categories"
+      ? "bg-green-900"
+      : "hover:text-yellow-300"
+  }`}
+>
+  🗂️ Categories
+</li>
         <li
           onClick={() => setActivePage("orders")}
           className={`cursor-pointer p-2 rounded ${

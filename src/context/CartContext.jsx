@@ -10,9 +10,17 @@ import {
 import { calculateCartTotal } from "../utils/cart/calculateCartTotal";
 
 const CartContext = createContext();
+function getSafeQuantity(
+  requested,
+  stock = Infinity,
+  maximumOrderQuantity = Infinity
+) {
+  const effectiveLimit = Math.min(
+    stock ?? Infinity,
+    maximumOrderQuantity ?? Infinity
+  );
 
-function getSafeQuantity(requested, stock = Infinity) {
-  return Math.min(requested, stock ?? Infinity);
+  return Math.min(requested, effectiveLimit);
 }
 
 export function CartProvider({ children }) {
@@ -61,9 +69,10 @@ export function CartProvider({ children }) {
             ? {
                 ...item,
                 quantity: getSafeQuantity(
-                  item.quantity + quantity,
-                  item.stock
-                ),
+  item.quantity + quantity,
+  item.stock,
+  item.maximumOrderQuantity
+),
               }
             : item
         );
@@ -73,10 +82,11 @@ export function CartProvider({ children }) {
         ...prevCart,
         {
           ...product,
-          quantity: getSafeQuantity(
-            quantity,
-            product.stock
-          ),
+         quantity: getSafeQuantity(
+  quantity,
+  product.stock,
+  product.maximumOrderQuantity
+),
         },
       ];
     });
@@ -94,9 +104,10 @@ export function CartProvider({ children }) {
         return {
           ...item,
           quantity: getSafeQuantity(
-            item.quantity + 1,
-            item.stock
-          ),
+  item.quantity + 1,
+  item.stock,
+  item.maximumOrderQuantity
+),
         };
       })
     );
