@@ -1,15 +1,24 @@
 export function validateCheckout({
   customerName,
   phone,
-  address,
+  deliveryAddress,
   cartItems,
+  deliveryMethod,
 }) {
+  /* -------------------------------------------------- */
+  /* Customer Name                                      */
+  /* -------------------------------------------------- */
+
   if (!customerName.trim()) {
     return {
       isValid: false,
       message: "Please enter your name.",
     };
   }
+
+  /* -------------------------------------------------- */
+  /* Phone Number                                       */
+  /* -------------------------------------------------- */
 
   if (!phone.trim()) {
     return {
@@ -18,7 +27,6 @@ export function validateCheckout({
     };
   }
 
-  // Remove spaces and +91 if present
   const normalizedPhone = phone
     .trim()
     .replace(/\s+/g, "")
@@ -31,12 +39,28 @@ export function validateCheckout({
     };
   }
 
-  if (!address.trim()) {
+  /* -------------------------------------------------- */
+  /* Delivery Address                                   */
+  /* -------------------------------------------------- */
+if (deliveryMethod !== "pickup") {
+  if (!deliveryAddress.houseNo.trim()) {
     return {
       isValid: false,
-      message: "Please enter your delivery address.",
+      message: "Please enter house number.",
     };
   }
+
+  if (!deliveryAddress.addressLine.trim()) {
+    return {
+      isValid: false,
+      message: "Please enter your address.",
+    };
+  }
+}
+
+  /* -------------------------------------------------- */
+  /* Cart                                               */
+  /* -------------------------------------------------- */
 
   if (!cartItems || cartItems.length === 0) {
     return {

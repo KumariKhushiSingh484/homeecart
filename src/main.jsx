@@ -25,6 +25,8 @@ import MyOrders from "./pages/MyOrders";
 import OrderDetails from "./pages/OrderDetails";
 import CustomerProfile from "./pages/CustomerProfile";
 
+import BusinessSettings from "./pages/BusinessSettings";
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
@@ -122,6 +124,15 @@ createRoot(document.getElementById("root")).render(
                     </ProtectedRoute>
                   }
                 />
+
+                <Route
+  path="/business-settings"
+  element={
+    <ProtectedRoute>
+      <BusinessSettings />
+    </ProtectedRoute>
+  }
+/>
 
               </Routes>
 

@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 
-import { calculateCartTotal } from "../utils/cart/calculateCartTotal";
+import { calculateCartSubtotal } from "../utils/cart/calculateCartSubtotal";
 
 const CartContext = createContext();
 function getSafeQuantity(
@@ -172,20 +172,14 @@ export function CartProvider({ children }) {
     );
   };
 
-  const {
-    subtotal: cartSubtotal,
-    delivery: cartDelivery,
-    total: cartTotal,
-  } = calculateCartTotal(cartItems);
-
+ const cartSubtotal =
+  calculateCartSubtotal(cartItems);
   const value = {
     cartItems,
     cartItemsMap,
 
     cartCount,
-    cartSubtotal,
-    cartDelivery,
-    cartTotal,
+   cartSubtotal,
 
     addToCart,
     increaseQuantity,

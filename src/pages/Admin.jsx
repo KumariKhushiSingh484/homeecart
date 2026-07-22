@@ -29,6 +29,10 @@ import useToast from "../hooks/useToast";
 
 import CategoryManagement from "./CategoryManagement";
 
+import BusinessSettings from "./BusinessSettings";
+
+import { calculatePV } from "../services/pricingService";
+
 function Admin() {
   // ==================== UI State ====================
 
@@ -303,14 +307,17 @@ const saveProduct = async () => {
 
       // Pricing
 
-      sellingPrice:
-        Number(sellingPrice),
 
-      purchasePrice:
-        Number(purchasePrice),
+sellingPrice: Number(sellingPrice),
 
-      mrp: Number(mrp),
+purchasePrice: Number(purchasePrice),
 
+mrp: Number(mrp),
+
+pv: calculatePV(
+  Number(sellingPrice),
+  Number(purchasePrice)
+),
       // Inventory
 
       stock: Number(stock),
@@ -460,6 +467,16 @@ return (
       {activePage === "orders" && (
         <Orders />
       )}
+
+      {activePage === "customers" && (
+  <div className="text-2xl font-semibold">
+    Customers Page (Coming Soon)
+  </div>
+)}
+
+{activePage === "business-settings" && (
+  <BusinessSettings />
+)}
     </div>
   </div>
 );

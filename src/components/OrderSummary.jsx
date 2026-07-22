@@ -1,98 +1,116 @@
-import { useCart } from "../context/CartContext";
-
-function OrderSummary() {
-  const {
-    cartItems,
-    cartSubtotal,
-    cartDelivery,
-    cartTotal,
-  } = useCart();
+function OrderSummary({
+  items = [],
+  subtotal = 0,
+  delivery = null,
+  total = 0,
+}) {
+  const summary = delivery?.summary;
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 mb-8">
-
-      <h2 className="text-2xl font-bold mb-5">
+    <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg">
+      <h2 className="mb-6 text-2xl font-bold">
         📦 Order Summary
       </h2>
 
       {/* Products */}
+      {items.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-gray-300 py-8 text-center text-gray-500">
+          Your cart is empty.
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map((item) => {
+            const price =
+              (item.sellingPrice ?? item.price ?? 0) *
+              (item.quantity ?? 0);
 
-      <div className="space-y-4">
+            return (
+              <div
+                key={item.id}
+                className="flex justify-between border-b pb-3"
+              >
+                <div>
+                  <p className="font-semibold">
+                    {item.name}
+                  </p>
 
-        {cartItems.map((item) => (
-          <div
-            key={item.id}
-            className="flex justify-between border-b pb-3"
-          >
-            <div>
+                  <p className="text-sm text-gray-500">
+                    Qty: {item.quantity}
+                  </p>
+                </div>
 
-              <p className="font-semibold">
-                {item.name}
-              </p>
+                <p className="font-semibold">
+                  ₹{price}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-              <p className="text-sm text-gray-500">
-                Qty: {item.quantity}
-              </p>
-
-            </div>
-
-            <p className="font-semibold">
-              ₹
-              {(item.sellingPrice ?? item.price) *
-                item.quantity}
-            </p>
-
-          </div>
-        ))}
-
-      </div>
-
-      {/* Totals */}
-
-      <div className="border-t mt-6 pt-5 space-y-3">
-
+      {/* Pricing */}
+      <div className="mt-6 space-y-3 border-t pt-5">
         <div className="flex justify-between">
-
           <span>Subtotal</span>
 
-          <span>
-            ₹{cartSubtotal}
-          </span>
-
+          <span>₹{subtotal}</span>
         </div>
 
-        <div className="flex justify-between">
+        {summary && (
+          <>
+            <div className="flex justify-between">
+              <span>Delivery Charge</span>
 
-          <span>Delivery</span>
+              <span>
+                ₹{summary.baseDeliveryCharge}
+              </span>
+            </div>
 
-          {cartDelivery === 0 ? (
+            <div className="flex justify-between text-green-600">
+              <span>PV Reward</span>
 
-            <span className="text-green-600 font-semibold">
-              FREE 🎉
-            </span>
+              <span>
+                -₹{summary.deliveryReward}
+              </span>
+            </div>
 
-          ) : (
+            <div className="flex justify-between">
+              <span>Final Delivery</span>
 
-            <span>
-              ₹{cartDelivery}
-            </span>
+              <span>
+                {summary.finalDeliveryCharge === 0
+                  ? "FREE 🎉"
+                  : `₹${summary.finalDeliveryCharge}`}
+              </span>
+            </div>
 
-          )}
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>Total Weight</span>
 
-        </div>
+              <span>
+                {(summary.totalWeight / 1000).toFixed(
+                  2
+                )}{" "}
+                kg
+              </span>
+            </div>
+
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>Total PV</span>
+
+              <span>{summary.totalPV}</span>
+            </div>
+          </>
+        )}
 
         <div className="flex justify-between border-t pt-4 text-2xl font-bold">
-
           <span>Total</span>
 
           <span className="text-green-600">
-            ₹{cartTotal}
+            ₹{total}
           </span>
-
         </div>
-
       </div>
-
     </div>
   );
 }

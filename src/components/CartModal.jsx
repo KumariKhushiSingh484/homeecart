@@ -3,15 +3,13 @@ import { useShopping } from "../context/ShoppingContext";
 
 function CartModal() {
   const {
-    cartItems,
-    cartCount,
-    cartSubtotal,
-    cartDelivery,
-    cartTotal,
-    increaseQuantity,
-    decreaseQuantity,
-    deleteFromCart,
-  } = useCart();
+  cartItems,
+  cartCount,
+  cartSubtotal,
+  increaseQuantity,
+  decreaseQuantity,
+  deleteFromCart,
+} = useCart();
 
   const {
     showCart,
@@ -201,37 +199,11 @@ function CartModal() {
 
             </div>
 
-            <div className="flex justify-between mb-2">
+           
 
-              <span className="text-gray-600">
-                Delivery
-              </span>
-
-              {cartDelivery === 0 ? (
-
-                <span className="text-green-600 font-semibold">
-                  FREE 🎉
-                </span>
-
-              ) : (
-
-                <span>
-                  ₹{cartDelivery}
-                </span>
-
-              )}
-
-            </div>
-
-            <div className="flex justify-between border-t pt-3 mt-3 text-2xl font-bold">
-
-              <span>Total</span>
-
-              <span>
-                ₹{cartTotal}
-              </span>
-
-            </div>
+          <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
+  🚚 Delivery charges will be calculated during checkout based on your order and delivery location.
+</div>
 
             <button
               onClick={openCheckout}
