@@ -4,11 +4,11 @@ import {
   collection,
   addDoc,
   getDocs,
+  getDoc,
   deleteDoc,
   updateDoc,
   doc,
 } from "firebase/firestore";
-
 import {
   ref,
   uploadBytes,
@@ -32,6 +32,8 @@ import CategoryManagement from "./CategoryManagement";
 import BusinessSettings from "./BusinessSettings";
 
 import { calculatePV } from "../services/pricingService";
+
+
 
 function Admin() {
   // ==================== UI State ====================
@@ -246,16 +248,15 @@ const editProduct = (product) => {
   // Inventory
 
   setStock(product.stock);
+// Measurement
 
-  // Measurement
+setWeight(
+  product.weight ?? ""
+);
 
-  setWeight(
-    product.weight ?? ""
-  );
-
-  setUnit(
-    product.unit ?? ""
-  );
+setUnit(
+  product.unit ?? ""
+);
 
   // Business Rule
 
@@ -296,6 +297,13 @@ const saveProduct = async () => {
         );
     }
 
+    console.log("weight:", weight);
+console.log("unit:", unit);
+console.log(
+  "deliveryWeight:",
+  calculateDeliveryWeight(weight, unit)
+);
+
     const productData = {
       // Basic Information
 
@@ -322,11 +330,13 @@ pv: calculatePV(
 
       stock: Number(stock),
 
-      // Measurement
+     
+// Measurement
 
-      weight: Number(weight),
+weight: Number(weight),
 
-      unit,
+unit,
+
 
       // Business Rules
 
@@ -335,36 +345,32 @@ pv: calculatePV(
           maximumOrderQuantity
         ),
     };
+    console.log(productData);
 
     if (isEditing) {
-      await updateDoc(
-        doc(
-          db,
-          "products",
-          editingId
-        ),
-        productData
-      );
+  const docRef = doc(db, "products", editingId);
 
-      showToast(
-        "success",
-        "Product updated successfully"
-      );
-    } else {
-      await addDoc(
-        collection(
-          db,
-          "products"
-        ),
-        productData
-      );
+  await updateDoc(docRef, productData);
 
-      showToast(
-        "success",
-        "Product added successfully"
-      );
-    }
+  const snapshot = await getDoc(docRef);
 
+  console.log("Firestore document:", snapshot.data());
+
+  showToast(
+    "success",
+    "Product updated successfully"
+  );
+} else {
+  await addDoc(
+    collection(db, "products"),
+    productData
+  );
+
+  showToast(
+    "success",
+    "Product added successfully"
+  );
+}
     resetForm();
 
     await fetchProducts();

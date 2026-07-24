@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS = {
 
   baseDeliveryCharge: 100,
   maxDeliveryDistance: 3,
-  maxOrderWeight: 30000,
+  maxOrderWeight: 30,
 
   pvRewardPercentage: 10,
 

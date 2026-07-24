@@ -1,7 +1,27 @@
-import { convertToGrams } from "../utils/unitConverter";
+/**
+ * Convert product weight to grams.
+ */
+function convertToGrams(weight, unit) {
+  const value = Number(weight);
+
+  if (Number.isNaN(value) || value <= 0) {
+    return 0;
+  }
+
+  switch (unit) {
+    case "kg":
+      return value * 1000;
+
+    case "g":
+      return value;
+
+    default:
+      return 0;
+  }
+}
 
 /**
- * Calculate total shipment weight in grams.
+ * Calculate total delivery weight in grams.
  */
 export function calculateTotalWeight(cartItems = []) {
   return cartItems.reduce((totalWeight, item) => {
@@ -74,7 +94,9 @@ function validateWeight(
   ) {
     return {
       valid: false,
-      message: `Maximum order weight is ${maxWeight} grams.`,
+      message: `Maximum order weight is ${
+        maxWeight / 1000
+      } kg.`,
     };
   }
 
@@ -135,35 +157,35 @@ export function calculateDelivery(
       maxOrderWeight
     );
 
- if (!weightValidation.valid) {
-  const deliveryReward =
-    calculateDeliveryReward(
-      totalPV,
-      pvRewardPercentage
-    );
+  if (!weightValidation.valid) {
+    const deliveryReward =
+      calculateDeliveryReward(
+        totalPV,
+        pvRewardPercentage
+      );
 
-  const finalDeliveryCharge =
-    calculateDeliveryCharge(
-      baseDeliveryCharge,
-      deliveryReward
-    );
+    const finalDeliveryCharge =
+      calculateDeliveryCharge(
+        baseDeliveryCharge,
+        deliveryReward
+      );
 
-  return {
-    success: false,
-    message: weightValidation.message,
-    validation: {
-      weight: false,
-      distance: true,
-    },
-    summary: {
-      totalWeight,
-      totalPV,
-      baseDeliveryCharge,
-      deliveryReward,
-      finalDeliveryCharge,
-    },
-  };
-}
+    return {
+      success: false,
+      message: weightValidation.message,
+      validation: {
+        weight: false,
+        distance: true,
+      },
+      summary: {
+        totalWeight,
+        totalPV,
+        baseDeliveryCharge,
+        deliveryReward,
+        finalDeliveryCharge,
+      },
+    };
+  }
 
   const distanceValidation =
     validateDistance(
@@ -172,34 +194,34 @@ export function calculateDelivery(
     );
 
   if (!distanceValidation.valid) {
-  const deliveryReward =
-    calculateDeliveryReward(
-      totalPV,
-      pvRewardPercentage
-    );
+    const deliveryReward =
+      calculateDeliveryReward(
+        totalPV,
+        pvRewardPercentage
+      );
 
-  const finalDeliveryCharge =
-    calculateDeliveryCharge(
-      baseDeliveryCharge,
-      deliveryReward
-    );
+    const finalDeliveryCharge =
+      calculateDeliveryCharge(
+        baseDeliveryCharge,
+        deliveryReward
+      );
 
-  return {
-    success: false,
-    message: distanceValidation.message,
-    validation: {
-      weight: true,
-      distance: false,
-    },
-    summary: {
-      totalWeight,
-      totalPV,
-      baseDeliveryCharge,
-      deliveryReward,
-      finalDeliveryCharge,
-    },
-  };
-}
+    return {
+      success: false,
+      message: distanceValidation.message,
+      validation: {
+        weight: true,
+        distance: false,
+      },
+      summary: {
+        totalWeight,
+        totalPV,
+        baseDeliveryCharge,
+        deliveryReward,
+        finalDeliveryCharge,
+      },
+    };
+  }
 
   const deliveryReward =
     calculateDeliveryReward(
