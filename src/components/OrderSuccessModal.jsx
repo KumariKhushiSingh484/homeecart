@@ -31,13 +31,15 @@ function OrderSuccessModal() {
           Order #{placedOrder.orderNumber}
         </p>
 
-        <p className="mt-4 text-gray-600">
-          🚴 Expected Delivery in
-        </p>
+        <div className="mt-5">
+  <p className="text-lg font-semibold text-gray-800">
+    🛒 We're processing your order.
+  </p>
 
-        <p className="text-2xl font-bold text-green-700 mt-1">
-          10 Minutes
-        </p>
+  <p className="mt-2 text-gray-600">
+    📞 Our team will contact you shortly to confirm your order details.
+  </p>
+</div>
 
         <p className="mt-5 text-gray-500 leading-relaxed">
           Thank you for shopping with

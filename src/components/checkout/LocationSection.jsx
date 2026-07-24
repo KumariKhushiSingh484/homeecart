@@ -5,13 +5,11 @@ function LocationSection({
   return (
     <div className="mt-8 rounded-2xl border bg-gray-50 p-6">
       <h2 className="mb-4 text-xl font-semibold">
-        Current Location (Optional)
-      </h2>
-
-      <p className="mb-5 text-sm text-gray-500">
-        Sharing your location helps us verify your address
-        and calculate delivery distance in future updates.
-      </p>
+  📍 Current Location <span className="text-red-500">*</span>
+</h2>
+      <p className="text-gray-600">
+  Share your current location so our delivery partner can easily find your address.
+</p>
 
       <button
         type="button"

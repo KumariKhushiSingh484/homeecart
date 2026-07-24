@@ -50,18 +50,16 @@ function DeliveryAddress({
       )}
 
       {/* House Number */}
-
-      <label className="mt-6 mb-2 block font-medium">
-        House No. / Flat No.
-      </label>
-
+<label className="mt-6 mb-2 block font-medium">
+  House No. / Flat No. <span className="text-gray-500 text-sm">(Optional)</span>
+</label>
       <input
         type="text"
         value={deliveryAddress.houseNo}
         onChange={(e) =>
           updateField("houseNo", e.target.value)
         }
-        placeholder="House No. / Flat No."
+        placeholder="House No. / Flat No..."
         className="w-full rounded-xl border p-4 focus:outline-none focus:ring-2 focus:ring-green-500"
       />
 

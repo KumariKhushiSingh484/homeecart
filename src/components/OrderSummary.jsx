@@ -1,3 +1,4 @@
+import { calculateTotalWeight } from "../services/deliveryService";
 function OrderSummary({
   items = [],
   subtotal = 0,
@@ -5,7 +6,7 @@ function OrderSummary({
   total = 0,
 }) {
   const summary = delivery?.summary;
-
+const totalWeight = calculateTotalWeight(items);
   return (
     <div className="mb-8 rounded-2xl bg-white p-6 shadow-lg">
       <h2 className="mb-6 text-2xl font-bold">
@@ -58,48 +59,23 @@ function OrderSummary({
 
         {summary && (
           <>
-            <div className="flex justify-between">
-              <span>Delivery Charge</span>
+           <div className="flex justify-between">
+  <span>Delivery Charge</span>
 
-              <span>
-                ₹{summary.baseDeliveryCharge}
-              </span>
-            </div>
+  <span>
+    {summary.finalDeliveryCharge === 0
+      ? "FREE 🎉"
+      : `₹${summary.finalDeliveryCharge}`}
+  </span>
+</div>
 
-            <div className="flex justify-between text-green-600">
-              <span>PV Reward</span>
+<div className="flex justify-between text-sm text-gray-500">
+  <span>Order Weight</span>
 
-              <span>
-                -₹{summary.deliveryReward}
-              </span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Final Delivery</span>
-
-              <span>
-                {summary.finalDeliveryCharge === 0
-                  ? "FREE 🎉"
-                  : `₹${summary.finalDeliveryCharge}`}
-              </span>
-            </div>
-
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>Total Weight</span>
-
-              <span>
-                {(summary.totalWeight / 1000).toFixed(
-                  2
-                )}{" "}
-                kg
-              </span>
-            </div>
-
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>Total PV</span>
-
-              <span>{summary.totalPV}</span>
-            </div>
+  <span>
+    {(totalWeight / 1000).toFixed(2)} kg
+  </span>
+</div>
           </>
         )}
 

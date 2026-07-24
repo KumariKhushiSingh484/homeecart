@@ -9,27 +9,8 @@ function DeliveryMethod({
       </h2>
 
       <div className="space-y-4">
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition hover:bg-white">
-          <input
-            type="radio"
-            name="deliveryMethod"
-            value="delivery"
-            checked={deliveryMethod === "delivery"}
-            onChange={(e) =>
-              setDeliveryMethod(e.target.value)
-            }
-          />
 
-          <div>
-            <p className="font-semibold">
-              🚚 Home Delivery
-            </p>
-
-            <p className="text-sm text-gray-500">
-              Get your groceries delivered to your doorstep.
-            </p>
-          </div>
-        </label>
+        {/* Store Pickup First */}
 
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition hover:bg-white">
           <input
@@ -52,6 +33,31 @@ function DeliveryMethod({
             </p>
           </div>
         </label>
+
+        {/* Home Delivery */}
+
+        <label className="flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition hover:bg-white">
+          <input
+            type="radio"
+            name="deliveryMethod"
+            value="delivery"
+            checked={deliveryMethod === "delivery"}
+            onChange={(e) =>
+              setDeliveryMethod(e.target.value)
+            }
+          />
+
+          <div>
+            <p className="font-semibold">
+              🚚 Home Delivery
+            </p>
+
+            <p className="text-sm text-gray-500">
+              Get your groceries delivered to your doorstep.
+            </p>
+          </div>
+        </label>
+
       </div>
     </div>
   );

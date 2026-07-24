@@ -2,17 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCategories } from "../services/categoryService";
 
-const categoryIcons = {
-  "Atta & Rice": "🌾",
-  "Tea & Coffee": "☕",
-  Snacks: "🍪",
-  Beverages: "🥤",
-  "Personal Care": "🧴",
-  Household: "🏠",
-};
-
-const DEFAULT_ICON = "🛒";
-
 function Categories() {
   const navigate = useNavigate();
 
@@ -27,9 +16,12 @@ function Categories() {
     try {
       const data = await getCategories();
 
-      const activeCategories = data.filter(
-        (category) => category.isActive
-      );
+      const activeCategories = data
+        .filter((category) => category.isActive)
+        .sort(
+          (a, b) =>
+            (a.displayOrder || 999) - (b.displayOrder || 999)
+        );
 
       setCategories(activeCategories);
     } catch (error) {
@@ -71,7 +63,7 @@ function Categories() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6">
+      <h2 className="text-3xl font-bold text-gray-800 mb-8">
         Shop by Category
       </h2>
 
@@ -80,15 +72,24 @@ function Categories() {
           <button
             key={category.id}
             onClick={() => handleCategoryClick(category.name)}
-            className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col items-center justify-center gap-3"
+            className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col items-center justify-center"
           >
-            <span className="text-5xl">
-              {categoryIcons[category.name] ?? DEFAULT_ICON}
-            </span>
+            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
+              {category.imageUrl ? (
+                <img
+                  src={category.imageUrl}
+                  alt={category.name}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  loading="lazy"
+                />
+              ) : (
+                <span className="text-4xl">📦</span>
+              )}
+            </div>
 
-            <span className="text-sm font-semibold text-center text-gray-700">
+            <h3 className="mt-4 text-sm font-semibold text-center text-gray-800 line-clamp-2">
               {category.name}
-            </span>
+            </h3>
           </button>
         ))}
       </div>

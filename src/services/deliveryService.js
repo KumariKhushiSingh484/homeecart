@@ -135,16 +135,35 @@ export function calculateDelivery(
       maxOrderWeight
     );
 
-  if (!weightValidation.valid) {
-    return {
-      success: false,
-      message: weightValidation.message,
-      validation: {
-        weight: false,
-        distance: true,
-      },
-    };
-  }
+ if (!weightValidation.valid) {
+  const deliveryReward =
+    calculateDeliveryReward(
+      totalPV,
+      pvRewardPercentage
+    );
+
+  const finalDeliveryCharge =
+    calculateDeliveryCharge(
+      baseDeliveryCharge,
+      deliveryReward
+    );
+
+  return {
+    success: false,
+    message: weightValidation.message,
+    validation: {
+      weight: false,
+      distance: true,
+    },
+    summary: {
+      totalWeight,
+      totalPV,
+      baseDeliveryCharge,
+      deliveryReward,
+      finalDeliveryCharge,
+    },
+  };
+}
 
   const distanceValidation =
     validateDistance(
@@ -153,15 +172,34 @@ export function calculateDelivery(
     );
 
   if (!distanceValidation.valid) {
-    return {
-      success: false,
-      message: distanceValidation.message,
-      validation: {
-        weight: true,
-        distance: false,
-      },
-    };
-  }
+  const deliveryReward =
+    calculateDeliveryReward(
+      totalPV,
+      pvRewardPercentage
+    );
+
+  const finalDeliveryCharge =
+    calculateDeliveryCharge(
+      baseDeliveryCharge,
+      deliveryReward
+    );
+
+  return {
+    success: false,
+    message: distanceValidation.message,
+    validation: {
+      weight: true,
+      distance: false,
+    },
+    summary: {
+      totalWeight,
+      totalPV,
+      baseDeliveryCharge,
+      deliveryReward,
+      finalDeliveryCharge,
+    },
+  };
+}
 
   const deliveryReward =
     calculateDeliveryReward(

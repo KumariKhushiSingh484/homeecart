@@ -4,6 +4,7 @@ export function validateCheckout({
   deliveryAddress,
   cartItems,
   deliveryMethod,
+  location,
 }) {
   /* -------------------------------------------------- */
   /* Customer Name                                      */
@@ -40,23 +41,26 @@ export function validateCheckout({
   }
 
   /* -------------------------------------------------- */
-  /* Delivery Address                                   */
+  /* Delivery Details                                   */
   /* -------------------------------------------------- */
-if (deliveryMethod !== "pickup") {
-  if (!deliveryAddress.houseNo.trim()) {
-    return {
-      isValid: false,
-      message: "Please enter house number.",
-    };
-  }
 
-  if (!deliveryAddress.addressLine.trim()) {
-    return {
-      isValid: false,
-      message: "Please enter your address.",
-    };
+  if (deliveryMethod === "delivery") {
+    // Full Address (Required)
+    if (!deliveryAddress.addressLine.trim()) {
+      return {
+        isValid: false,
+        message: "Please enter your complete address.",
+      };
+    }
+
+    // Current Location (Required)
+    if (!location) {
+      return {
+        isValid: false,
+        message: "Please share your current location.",
+      };
+    }
   }
-}
 
   /* -------------------------------------------------- */
   /* Cart                                               */
@@ -68,6 +72,10 @@ if (deliveryMethod !== "pickup") {
       message: "Your cart is empty.",
     };
   }
+
+  /* -------------------------------------------------- */
+  /* Success                                            */
+  /* -------------------------------------------------- */
 
   return {
     isValid: true,

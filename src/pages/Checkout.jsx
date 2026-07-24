@@ -199,6 +199,8 @@ function Checkout() {
     deliveryMethod,
   ]);
 
+
+ 
   /* -------------------------------------------------------------------------- */
   /* Cleanup                                                                     */
   /* -------------------------------------------------------------------------- */
@@ -208,14 +210,15 @@ function Checkout() {
       setLocation("");
     }
   }, [deliveryMethod]);
+/* -------------------------------------------------------------------------- */
+/* Derived Values                                                              */
+/* -------------------------------------------------------------------------- */
 
-  /* -------------------------------------------------------------------------- */
-  /* Derived Values                                                              */
-  /* -------------------------------------------------------------------------- */
+console.log("Delivery:", delivery);
+console.log("Weight Validation:", delivery?.validation?.weight);
 
-  const deliveryCharge =
-    delivery?.summary?.finalDeliveryCharge ?? 0;
-
+const deliveryCharge =
+  delivery?.summary?.finalDeliveryCharge ?? 0;
   const finalTotal =
     cartSubtotal + deliveryCharge;
 
@@ -270,17 +273,30 @@ function Checkout() {
 
   const placeOrder = async () => {
     if (isPlacingOrder) return;
-        if (
-      deliveryMethod === "delivery" &&
-      !pincodeStatus.isValid
-    ) {
-      showToast(
-        "error",
-        pincodeStatus.message
-      );
+       
+    if (
+  deliveryMethod === "delivery" &&
+  !pincodeStatus.isValid
+) {
+  showToast(
+    "error",
+    pincodeStatus.message
+  );
 
-      return;
-    }
+  return;
+}
+
+if (
+  deliveryMethod === "delivery" &&
+  !delivery?.validation?.weight
+) {
+  showToast(
+    "error",
+    delivery.message
+  );
+
+  return;
+}
 const validation = validateCheckout({
   customerName,
   phone,
@@ -294,6 +310,7 @@ const validation = validateCheckout({
         },
   cartItems,
   deliveryMethod,
+  location,
 });
 
     if (!validation.isValid) {
@@ -415,6 +432,19 @@ const formattedAddress =
             Checkout
           </h1>
 
+          
+ {/* ------------------------------------------------------------------ */}
+          {/* Delivery Method                                                    */}
+          {/* ------------------------------------------------------------------ */}
+
+
+
+<DeliveryMethod
+  deliveryMethod={deliveryMethod}
+  setDeliveryMethod={setDeliveryMethod}
+/>
+
+
           <OrderSummary
             items={cartItems}
             subtotal={cartSubtotal}
@@ -429,14 +459,7 @@ const formattedAddress =
   customerName={customerName}
   phone={phone}
 />
-                   {/* ------------------------------------------------------------------ */}
-          {/* Delivery Method                                                    */}
-          {/* ------------------------------------------------------------------ */}
-
-         <DeliveryMethod
-  deliveryMethod={deliveryMethod}
-  setDeliveryMethod={setDeliveryMethod}
-/>
+               
 
           {/* ------------------------------------------------------------------ */}
           {/* Home Delivery                                                      */}
@@ -544,13 +567,16 @@ const formattedAddress =
 
             <button
               onClick={placeOrder}
-              disabled={
-                isPlacingOrder ||
-                (
-                  deliveryMethod === "delivery" &&
-                  !pincodeStatus.isValid
-                )
-              }
+            disabled={
+  isPlacingOrder ||
+  (
+    deliveryMethod === "delivery" &&
+    (
+      !pincodeStatus.isValid ||
+      !delivery?.validation?.weight
+    )
+  )
+}
               className={`w-full rounded-xl py-4 text-lg font-semibold transition ${
                 isPlacingOrder
                   ? "cursor-not-allowed bg-gray-400 text-white"
@@ -574,7 +600,19 @@ const formattedAddress =
               </p>
 
             )}
+            {deliveryMethod === "delivery" &&
+  !delivery?.validation?.weight && (
+    <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-center">
+      <p className="font-medium text-red-700">
+        ⚠️ Your order is overweight.
+      </p>
 
+      <p className="mt-1 text-sm text-red-600">
+        Maximum order weight for Home Delivery is <strong>30 kg</strong>.
+        Please reduce the quantity or choose <strong>Store Pickup</strong>.
+      </p>
+    </div>
+)}
           </div>        </div>
 
       </div>
