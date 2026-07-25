@@ -299,10 +299,7 @@ const saveProduct = async () => {
 
     console.log("weight:", weight);
 console.log("unit:", unit);
-console.log(
-  "deliveryWeight:",
-  calculateDeliveryWeight(weight, unit)
-);
+
 
     const productData = {
       // Basic Information
