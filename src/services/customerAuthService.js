@@ -6,11 +6,13 @@ import {
 
 import { auth } from "./firebase";
 
+/**
+ * Initialize reCAPTCHA only once.
+ * Reuse the existing verifier for OTP resend.
+ */
 export const setupRecaptcha = async () => {
-  // Clear old verifier if it exists
   if (window.recaptchaVerifier) {
-    window.recaptchaVerifier.clear();
-    window.recaptchaVerifier = null;
+    return window.recaptchaVerifier;
   }
 
   window.recaptchaVerifier = new RecaptchaVerifier(
@@ -22,24 +24,41 @@ export const setupRecaptcha = async () => {
   );
 
   await window.recaptchaVerifier.render();
+
+  return window.recaptchaVerifier;
 };
 
+/**
+ * Send OTP to customer's phone.
+ */
 export const sendOTP = async (phoneNumber) => {
-  await setupRecaptcha();
+  const appVerifier = await setupRecaptcha();
 
-  const confirmationResult = await signInWithPhoneNumber(
-    auth,
-    phoneNumber,
-    window.recaptchaVerifier
-  );
+  const confirmationResult =
+    await signInWithPhoneNumber(
+      auth,
+      phoneNumber,
+      appVerifier
+    );
 
-  window.confirmationResult = confirmationResult;
+  window.confirmationResult =
+    confirmationResult;
 
   return confirmationResult;
 };
 
+/**
+ * Verify OTP entered by customer.
+ */
 export const verifyOTP = async (otp) => {
-  const result = await window.confirmationResult.confirm(otp);
+  if (!window.confirmationResult) {
+    throw new Error(
+      "OTP session expired. Please request a new OTP."
+    );
+  }
+
+  const result =
+    await window.confirmationResult.confirm(otp);
 
   // Clean up after successful verification
   if (window.recaptchaVerifier) {
@@ -52,6 +71,16 @@ export const verifyOTP = async (otp) => {
   return result.user;
 };
 
+/**
+ * Logout customer.
+ */
 export const logoutCustomer = async () => {
+  if (window.recaptchaVerifier) {
+    window.recaptchaVerifier.clear();
+    window.recaptchaVerifier = null;
+  }
+
+  window.confirmationResult = null;
+
   await signOut(auth);
 };

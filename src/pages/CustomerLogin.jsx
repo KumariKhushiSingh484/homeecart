@@ -4,6 +4,8 @@ import { sendOTP } from "../services/customerAuthService";
 import { auth } from "../services/firebase";
 function CustomerLogin() {
     const [phone, setPhone] = useState("");
+    const [isSendingOtp, setIsSendingOtp] =
+  useState(false);
     const navigate = useNavigate();
     useEffect(() => {
   console.log("CustomerLogin mounted");
@@ -14,21 +16,35 @@ function CustomerLogin() {
     navigate("/");
   }
 }, [navigate]);
-    const handleSendOTP = async () => {
+   const handleSendOTP = async () => {
   if (phone.length !== 10) {
-    alert("Please enter a valid 10-digit mobile number.");
+    alert(
+      "Please enter a valid 10-digit mobile number."
+    );
     return;
   }
 
   try {
-    const confirmationResult = await sendOTP("+91" + phone);
+    setIsSendingOtp(true);
 
-    window.confirmationResult = confirmationResult;
+    const confirmationResult =
+      await sendOTP("+91" + phone);
+      
+      sessionStorage.setItem(
+  "customerPhone",
+  phone
+);
+
+    window.confirmationResult =
+      confirmationResult;
 
     navigate("/verify-otp");
   } catch (error) {
     console.error(error);
+
     alert(error.message);
+  } finally {
+    setIsSendingOtp(false);
   }
 };
   return (
@@ -53,12 +69,27 @@ function CustomerLogin() {
     setPhone(e.target.value.replace(/\D/g, ""))
   }
 />
-        <button
+      <button
   onClick={handleSendOTP}
-  className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"
+  disabled={isSendingOtp}
+  className="
+    w-full
+    rounded-lg
+    bg-green-600
+    py-3
+    text-white
+    transition
+    hover:bg-green-700
+    disabled:cursor-not-allowed
+    disabled:opacity-60
+  "
 >
-  Continue
+  {isSendingOtp
+    ? "Sending OTP..."
+    : "Continue"}
 </button>
+  
+
 <div id="recaptcha-container"></div>
       </div>
     </div>
