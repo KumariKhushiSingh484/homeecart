@@ -5,10 +5,12 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
-import banner1 from "../assets/banners/banner1.jpg";
-import banner2 from "../assets/banners/banner2.jpg";
-
-const banners = [banner1, banner2];
+import banner3 from "../assets/banners/banner3.jpg";
+import banner4 from "../assets/banners/banner4.jpg";
+const banners = [
+  banner3,
+  banner4,
+];
 
 function HeroCarousel() {
   return (
