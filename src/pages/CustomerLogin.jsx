@@ -2,25 +2,38 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendOTP } from "../services/customerAuthService";
 import { auth } from "../services/firebase";
+import useToast from "../hooks/useToast";
+import ToastNotification from "../components/AppToast";
+import { getAuthErrorMessage } from "../utils/auth/getAuthErrorMessage";
+
 function CustomerLogin() {
     const [phone, setPhone] = useState("");
     const [isSendingOtp, setIsSendingOtp] =
   useState(false);
     const navigate = useNavigate();
-    useEffect(() => {
+   const {
+  toast,
+  setToast,
+  showToast,
+} = useToast();
+
+useEffect(() => {
   console.log("CustomerLogin mounted");
   console.log("auth.currentUser:", auth.currentUser);
 
-  if (auth.currentUser) {
-    console.log("Redirecting to home...");
-    navigate("/");
-  }
+  // Temporarily disabled redirect while debugging
+  // if (auth.currentUser) {
+  //   console.log("Redirecting to home...");
+  //   navigate("/");
+  // }
 }, [navigate]);
-   const handleSendOTP = async () => {
+
+const handleSendOTP = async () => {
   if (phone.length !== 10) {
-    alert(
-      "Please enter a valid 10-digit mobile number."
-    );
+   showToast(
+  "error",
+  "Please enter a valid 10-digit mobile number."
+);
     return;
   }
 
@@ -38,17 +51,29 @@ function CustomerLogin() {
     window.confirmationResult =
       confirmationResult;
 
+      showToast(
+  "success",
+  "OTP sent successfully."
+);
+
     navigate("/verify-otp");
   } catch (error) {
     console.error(error);
 
-    alert(error.message);
+   showToast(
+  "error",
+  getAuthErrorMessage(error)
+);
   } finally {
     setIsSendingOtp(false);
   }
 };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <ToastNotification
+  toast={toast}
+  setToast={setToast}
+/>
       <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
 <h1 className="text-3xl font-bold text-center mb-4">
   🏡 Welcome to HomeeCart
@@ -68,6 +93,11 @@ function CustomerLogin() {
   onChange={(e) =>
     setPhone(e.target.value.replace(/\D/g, ""))
   }
+  onKeyDown={(event) => {
+  if (event.key === "Enter") {
+    handleSendOTP();
+  }
+}}
 />
       <button
   onClick={handleSendOTP}

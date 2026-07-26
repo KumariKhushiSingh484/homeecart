@@ -46,6 +46,8 @@ function Admin() {
 
   const [products, setProducts] =
     useState([]);
+    const [searchTerm, setSearchTerm] =
+  useState("");
 
   // ==================== Product Form ====================
 
@@ -385,7 +387,43 @@ unit,
 useEffect(() => {
   fetchProducts();
 }, []);
+const filteredProducts = [...products]
+  .filter((product) => {
+    const search = searchTerm.toLowerCase();
 
+   return (
+  product.name
+    ?.toLowerCase()
+    .includes(search) ||
+
+  product.category
+    ?.toLowerCase()
+    .includes(search) ||
+
+  String(product.weight)
+    .toLowerCase()
+    .includes(search) ||
+
+  product.unit
+    ?.toLowerCase()
+    .includes(search) ||
+
+  String(product.sellingPrice)
+    .includes(search) ||
+
+  String(product.pv)
+    .includes(search)
+);
+  })
+  .sort((a, b) =>
+    a.name.localeCompare(
+      b.name,
+      "en",
+      {
+        sensitivity: "base",
+      }
+    )
+  );
 // ==================== UI ====================
 
 return (
@@ -454,14 +492,37 @@ return (
             saveProduct={saveProduct}
             isEditing={isEditing}
           />
-
+<div className="my-6">
+  <input
+    type="text"
+    placeholder="🔍 Search products by name or category..."
+    value={searchTerm}
+    onChange={(e) =>
+      setSearchTerm(e.target.value)
+    }
+    className="
+      w-full
+      rounded-xl
+      border
+      border-gray-300
+      bg-white
+      px-4
+      py-3
+      text-gray-800
+      shadow-sm
+      outline-none
+      transition
+      focus:border-green-500
+      focus:ring-2
+      focus:ring-green-200
+    "
+  />
+</div>
           <ProductTable
-            products={products}
-            deleteProduct={
-              deleteProduct
-            }
-            editProduct={editProduct}
-          />
+  products={filteredProducts}
+  deleteProduct={deleteProduct}
+  editProduct={editProduct}
+/>
         </>
       )}
 {activePage === "categories" && (

@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useShopping } from "../context/ShoppingContext";
 import { collection, getDocs } from "firebase/firestore";
 
 import { db } from "../services/firebase";
@@ -7,10 +9,17 @@ import HeroCarousel from "../components/HeroCarousel";
 import Categories from "../components/Categories";
 import ProductGrid from "../components/ProductGrid";
 
+import { useSearch } from "../context/SearchContext";
+
 function Home() {
   const [products, setProducts] = useState([]);
-  const [searchTerm] = useState("");
   const [selectedCategory] = useState("");
+
+  const { searchTerm } = useSearch();
+  const location = useLocation();
+const navigate = useNavigate();
+
+const { openCheckout } = useShopping();
 
   useEffect(() => {
     async function loadProducts() {
@@ -35,30 +44,81 @@ function Home() {
 
     loadProducts();
   }, []);
+useEffect(() => {
+  if (location.state?.openCheckout) {
+    openCheckout();
 
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
-      const matchesCategory =
-        selectedCategory === "" ||
-        product.category === selectedCategory;
-
-      return matchesSearch && matchesCategory;
+    // Remove the navigation state so it doesn't reopen
+    navigate("/", {
+      replace: true,
+      state: {},
     });
-  }, [products, searchTerm, selectedCategory]);
+  }
+}, [location, navigate, openCheckout]);
+  const filteredProducts = useMemo(() => {
+    const search = searchTerm
+      .trim()
+      .toLowerCase();
+
+    return [...products]
+      .filter((product) => {
+        const productName =
+          product.name?.toLowerCase() || "";
+
+        const category =
+          product.category?.toLowerCase() || "";
+
+        const matchesSearch =
+          search === "" ||
+          productName.includes(search) ||
+          category.includes(search);
+
+        const matchesCategory =
+          selectedCategory === "" ||
+          product.category ===
+            selectedCategory;
+
+        return (
+          matchesSearch &&
+          matchesCategory
+        );
+      })
+      .sort((a, b) =>
+        a.name.localeCompare(
+          b.name,
+          "en",
+          {
+            sensitivity: "base",
+          }
+        )
+      );
+  }, [
+    products,
+    searchTerm,
+    selectedCategory,
+  ]);
 
   return (
     <>
       <HeroCarousel />
 
       <Categories />
+<section className="mx-auto max-w-7xl px-4 pt-10">
+  <div className="mb-8">
+    <h2 className="text-3xl font-bold text-gray-900">
+      ⭐ Featured Products
+    </h2>
 
-      <ProductGrid
-        filteredProducts={filteredProducts}
-      />
+    <p className="mt-2 text-gray-500">
+      Best prices on your daily essentials.
+    </p>
+  </div>
+
+  <ProductGrid
+    filteredProducts={filteredProducts}
+  />
+</section>
+      
     </>
   );
 }

@@ -11,39 +11,64 @@ import useToast from "../hooks/useToast";
 import ToastNotification from "../components/AppToast";
 
 const DEFAULT_SETTINGS = {
+  // =========================
+  // Store Information
+  // =========================
   storeName: "",
   storePhone: "",
   storeAddress: "",
 
-  // New Fields
+  // =========================
+  // Delivery Area
+  // =========================
   storePincode: "",
   serviceablePincodes: [],
 
-  // Existing Fields
   storeLatitude: 0,
   storeLongitude: 0,
 
+  // =========================
+  // Delivery Rules
+  // =========================
   baseDeliveryCharge: 100,
   maxDeliveryDistance: 3,
   maxOrderWeight: 30,
 
-  pvRewardPercentage: 10,
+  freeDeliveryEnabled: true,
+  freeDeliveryMinimum: 100,
 
+  // =========================
+  // Purchase Rules
+  // =========================
   minimumOrderAmount: 0,
 
+  minimumPurchasePVEnabled: true,
+  minimumPurchasePV: 250,
+
+  // =========================
+  // Rewards
+  // =========================
+  pvRewardPercentage: 10,
+
+  // =========================
+  // Store Status
+  // =========================
   isStoreOpen: true,
   isOrderingEnabled: true,
 };
-function BusinessSettings() {
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
-  const [loading, setLoading] = useState(false);
+function BusinessSettings() {
+  const [settings, setSettings] =
+    useState(DEFAULT_SETTINGS);
+
+  const [loading, setLoading] =
+    useState(false);
 
   const {
-  toast,
-  setToast,
-  showToast,
-} = useToast();
+    toast,
+    setToast,
+    showToast,
+  } = useToast();
 
   useEffect(() => {
     loadSettings();
@@ -53,22 +78,24 @@ function BusinessSettings() {
     try {
       setLoading(true);
 
-      const data = await getBusinessSettings();
+      const data =
+        await getBusinessSettings();
 
-      if (data) {
-        setSettings({
-          ...DEFAULT_SETTINGS,
-          ...data,
-        });
-      }
+      setSettings({
+        ...DEFAULT_SETTINGS,
+        ...(data || {}),
+      });
     } catch (error) {
-  console.error("Failed to load settings", error);
+      console.error(
+        "Failed to load settings",
+        error
+      );
 
-  showToast(
-    "error",
-    "Failed to load business settings"
-  );
-} finally {
+      showToast(
+        "error",
+        "Failed to load business settings"
+      );
+    } finally {
       setLoading(false);
     }
   }
@@ -77,39 +104,41 @@ function BusinessSettings() {
     try {
       setLoading(true);
 
-      await saveBusinessSettings(settings);
+      await saveBusinessSettings(
+        settings
+      );
 
       showToast(
-  "success",
-  "Business settings saved successfully"
-);
+        "success",
+        "Business settings saved successfully"
+      );
     } catch (error) {
       console.error(error);
 
       showToast(
-  "error",
-  "Failed to save business settings"
-);
+        "error",
+        "Failed to save business settings"
+      );
     } finally {
       setLoading(false);
     }
   }
 
- return (
-  <>
-    <ToastNotification
-      toast={toast}
-      setToast={setToast}
-    />
+  return (
+    <>
+      <ToastNotification
+        toast={toast}
+        setToast={setToast}
+      />
 
-    <BusinessSettingsForm
-      settings={settings}
-      setSettings={setSettings}
-      saveSettings={handleSave}
-      loading={loading}
-    />
-  </>
-);
+      <BusinessSettingsForm
+        settings={settings}
+        setSettings={setSettings}
+        saveSettings={handleSave}
+        loading={loading}
+      />
+    </>
+  );
 }
 
 export default BusinessSettings;

@@ -72,24 +72,50 @@ function Categories() {
           <button
             key={category.id}
             onClick={() => handleCategoryClick(category.name)}
-            className="group bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col items-center justify-center"
+          className="
+group
+overflow-hidden
+rounded-2xl
+border
+border-gray-200
+bg-white
+shadow-sm
+transition-all
+duration-300
+hover:-translate-y-1
+hover:shadow-xl
+flex
+flex-col
+h-full
+"
           >
-            <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-100 border border-gray-200 flex items-center justify-center">
-              {category.imageUrl ? (
-                <img
-                  src={category.imageUrl}
-                  alt={category.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                  loading="lazy"
-                />
-              ) : (
-                <span className="text-4xl">📦</span>
-              )}
-            </div>
+            <div className="overflow-hidden rounded-xl">
+  {category.imageUrl ? (
+    <img
+      src={category.imageUrl}
+      alt={category.name}
+      loading="lazy"
+     className="
+h-40
+w-full
+object-cover
+transition-transform
+duration-300
+group-hover:scale-105
+"
+    />
+  ) : (
+    <div className="flex h-36 items-center justify-center bg-gray-100 text-5xl">
+      📦
+    </div>
+  )}
+</div>
 
-            <h3 className="mt-4 text-sm font-semibold text-center text-gray-800 line-clamp-2">
-              {category.name}
-            </h3>
+<div className="flex-1 p-4 flex items-center justify-center">
+  <h3 className="text-center text-base font-semibold text-gray-800">
+    {category.name}
+  </h3>
+</div>
           </button>
         ))}
       </div>

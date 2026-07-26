@@ -26,17 +26,24 @@ import { formatDeliveryAddress } from "../utils/address/formatDeliveryAddress";
 import DeliveryMethod from "../components/checkout/DeliveryMethod";
 import DeliveryAddress from "../components/checkout/DeliveryAddress";
 import LocationSection from "../components/checkout/LocationSection";
-
+import { validatePurchaseRules } from "../utils/validation/validatePurchaseRules";
+import { getProducts } from "../services/productService";
+import RecommendedProducts from "../components/checkout/RecommendedProducts";
+import { recommendProducts } from "../utils/recommendation/recommendProducts";
+import CombinationCard from "../components/checkout/CombinationCard";
+import { recommendCombination } from "../utils/recommendation/recommendCombination";
+import LoginRequired from "../components/checkout/LoginRequired";
 function Checkout() {
   /* -------------------------------------------------------------------------- */
   /* Contexts                                                                    */
   /* -------------------------------------------------------------------------- */
 
-  const {
-    cartItems,
-    cartSubtotal,
-    clearCart,
-  } = useCart();
+ const {
+  cartItems,
+  cartSubtotal,
+  clearCart,
+  addToCart,
+} = useCart();
 
   const {
     showCheckout,
@@ -84,6 +91,10 @@ function Checkout() {
   const [businessSettings, setBusinessSettings] =
     useState(null);
 
+
+const [products, setProducts] =
+  useState([]);
+
   const [delivery, setDelivery] =
     useState(null);
 
@@ -118,7 +129,24 @@ function Checkout() {
       "",
   });
 }, [customer]);
+useEffect(() => {
+  async function loadProducts() {
+    try {
+      const data = await getProducts();
 
+      setProducts(data);
+    } catch (error) {
+      console.error(error);
+
+      showToast(
+        "error",
+        "Failed to load products."
+      );
+    }
+  }
+
+  loadProducts();
+}, []);
   /* -------------------------------------------------------------------------- */
   /* Business Settings                                                           */
   /* -------------------------------------------------------------------------- */
@@ -221,17 +249,40 @@ const deliveryCharge =
   delivery?.summary?.finalDeliveryCharge ?? 0;
   const finalTotal =
     cartSubtotal + deliveryCharge;
-
+const purchaseValidation =
+  validatePurchaseRules({
+    cartItems,
+    businessSettings,
+  });
+  const recommendedProducts =
+  recommendProducts({
+    products,
+    cartItems,
+    remainingPV:
+      purchaseValidation.remainingPV || 0,
+  });
+  const recommendedCombination =
+  recommendCombination({
+    products,
+    cartItems,
+    remainingPV:
+      purchaseValidation.remainingPV || 0,
+  });
   /* -------------------------------------------------------------------------- */
   /* Early Returns                                                               */
   /* -------------------------------------------------------------------------- */
 
   if (!showCheckout) return null;
 
-  if (loadingCustomer) return null;
+if (loadingCustomer) return null;
 
-  if (!customer) return null;
-
+if (!customer) {
+  return (
+    <LoginRequired
+      closeCheckout={closeCheckout}
+    />
+  );
+}
   /* -------------------------------------------------------------------------- */
   /* Helper Functions                                                            */
   /* -------------------------------------------------------------------------- */
@@ -312,6 +363,11 @@ const validation = validateCheckout({
   deliveryMethod,
   location,
 });
+const purchaseValidation =
+  validatePurchaseRules({
+    cartItems,
+    businessSettings,
+  });
 
     if (!validation.isValid) {
       showToast(
@@ -321,6 +377,14 @@ const validation = validateCheckout({
 
       return;
     }
+    if (!purchaseValidation.isValid) {
+  showToast(
+    "error",
+    purchaseValidation.message
+  );
+
+  return;
+}
 
     if (!authUser) {
       showToast(
@@ -556,7 +620,113 @@ const formattedAddress =
               </span>
 
             </div>
+<hr className="my-5" />
 
+<h3 className="mb-4 text-lg font-semibold">
+  ⭐ Purchase Value
+</h3>
+
+<div className="flex justify-between py-1">
+  <span>Current PV</span>
+
+  <span className="font-semibold">
+    {purchaseValidation.totalPV ?? 0}
+  </span>
+</div>
+
+{businessSettings?.minimumPurchasePVEnabled && (
+  <>
+    <div className="flex justify-between py-1">
+      <span>Required PV</span>
+
+      <span className="font-semibold">
+        {purchaseValidation.minimumPV}
+      </span>
+    </div>
+
+    {purchaseValidation.isValid ? (
+  <div
+    className="
+      mt-4
+      rounded-xl
+      border
+      border-green-300
+      bg-green-50
+      p-4
+    "
+  >
+    <div className="flex items-center justify-center gap-2">
+      <span className="text-2xl">🎉</span>
+
+      <div className="text-left">
+        <p className="font-bold text-green-700">
+          Congratulations!
+        </p>
+
+        <p className="text-sm text-green-600">
+          Your purchase value requirement has
+          been completed.
+        </p>
+      </div>
+    </div>
+  </div>
+) : (
+     <div
+  className="
+    mt-4
+    rounded-xl
+    border
+    border-orange-200
+    bg-orange-50
+    p-4
+  "
+>
+  <p className="text-center font-semibold text-orange-700">
+    🎯 Need only{" "}
+    <span className="font-bold">
+      {purchaseValidation.remainingPV} PV
+    </span>
+    !
+  </p>
+
+  <p className="mt-2 text-center text-sm text-gray-600">
+    Keep shopping to unlock checkout.
+  </p>
+
+  {/* Recommended Products */}
+  <CombinationCard
+  products={recommendedCombination}
+  addToCart={addToCart}
+  showToast={showToast}
+/>
+ <RecommendedProducts
+  products={recommendedProducts}
+  addToCart={addToCart}
+  showToast={showToast}
+  remainingPV={purchaseValidation.remainingPV}
+/>
+
+  <button
+    type="button"
+    onClick={closeCheckout}
+    className="
+      mt-4
+      w-full
+      rounded-lg
+      bg-orange-500
+      py-3
+      font-semibold
+      text-white
+      transition
+      hover:bg-orange-600
+    "
+  >
+    🛒 Continue Shopping
+  </button>
+</div>
+    )}
+  </>
+)}
           </div>
 
           {/* ------------------------------------------------------------------ */}
@@ -566,30 +736,36 @@ const formattedAddress =
           <div className="mt-10">
 
             <button
-              onClick={placeOrder}
-            disabled={
-  isPlacingOrder ||
-  (
-    deliveryMethod === "delivery" &&
+  onClick={placeOrder}
+  disabled={
+    isPlacingOrder ||
     (
-      !pincodeStatus.isValid ||
-      !delivery?.validation?.weight
+      deliveryMethod === "delivery" &&
+      (
+        !pincodeStatus.isValid ||
+        !delivery?.validation?.weight
+      )
+    ) ||
+    !purchaseValidation.isValid
+  }
+  className={`w-full rounded-xl py-4 text-lg font-semibold transition ${
+    isPlacingOrder ||
+    !purchaseValidation.isValid ||
+    (
+      deliveryMethod === "delivery" &&
+      (
+        !pincodeStatus.isValid ||
+        !delivery?.validation?.weight
+      )
     )
-  )
-}
-              className={`w-full rounded-xl py-4 text-lg font-semibold transition ${
-                isPlacingOrder
-                  ? "cursor-not-allowed bg-gray-400 text-white"
-                  : deliveryMethod === "delivery" &&
-                    !pincodeStatus.isValid
-                  ? "cursor-not-allowed bg-gray-300 text-gray-600"
-                  : "bg-green-600 text-white hover:bg-green-700"
-              }`}
-            >
-              {isPlacingOrder
-                ? "Placing Order..."
-                : "Place Order"}
-            </button>
+      ? "cursor-not-allowed bg-gray-300 text-gray-600"
+      : "bg-green-600 text-white hover:bg-green-700"
+  }`}
+>
+  {isPlacingOrder
+    ? "Placing Order..."
+    : "Place Order"}
+</button>
 
             {deliveryMethod === "delivery" &&
               !pincodeStatus.isValid && (

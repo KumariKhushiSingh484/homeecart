@@ -1,10 +1,11 @@
 import { Search } from "lucide-react";
+import { useSearch } from "../../context/SearchContext";
 
-function SearchBar({
-  value = "",
-  onChange,
-  placeholder = "Search for atta, rice, oil..."
-}) {
+function SearchBar() {
+  const {
+    searchTerm,
+    setSearchTerm,
+  } = useSearch();
   return (
     <div className="hidden flex-1 px-8 md:flex">
 
@@ -36,9 +37,11 @@ function SearchBar({
 
         <input
           type="text"
-          value={value}
-          onChange={onChange}
-          placeholder={placeholder}
+          value={searchTerm}
+          onChange={(e) =>
+  setSearchTerm(e.target.value)
+}
+          placeholder="Search products or categories..."
           className="
             w-full
             bg-transparent

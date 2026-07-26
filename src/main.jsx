@@ -26,14 +26,16 @@ import OrderDetails from "./pages/OrderDetails";
 import CustomerProfile from "./pages/CustomerProfile";
 
 import BusinessSettings from "./pages/BusinessSettings";
+import { SearchProvider } from "./context/SearchContext";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <AuthProvider>
-      <CartProvider>
-        <CustomerProvider>
-          <ShoppingProvider>
-            <BrowserRouter>
+   <AuthProvider>
+  <CartProvider>
+    <CustomerProvider>
+      <ShoppingProvider>
+        <SearchProvider>
+          <BrowserRouter>
 
               <Routes>
 
@@ -136,8 +138,9 @@ createRoot(document.getElementById("root")).render(
 
               </Routes>
 
-            </BrowserRouter>
-          </ShoppingProvider>
+                     </BrowserRouter>
+        </SearchProvider>
+      </ShoppingProvider>
         </CustomerProvider>
       </CartProvider>
     </AuthProvider>
