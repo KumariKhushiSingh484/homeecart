@@ -18,74 +18,144 @@ export function drawSummary(
     total,
   } = summary;
 
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
-  doc.setTextColor(...COLORS.dark);
+  const cardX = 105;
+  const cardWidth = 85;
+  const cardHeight = 58;
 
-  doc.text(
-    "Order Summary",
-    PAGE.left,
-    y
-  );
-
-  y += 10;
+  // =====================================
+  // Card
+  // =====================================
 
   doc.setDrawColor(...COLORS.border);
-  doc.setFillColor(248, 250, 252);
+  doc.setFillColor(249, 250, 251);
 
   doc.roundedRect(
-    110,
+    cardX,
     y,
-    80,
-    42,
-    2,
-    2,
+    cardWidth,
+    cardHeight,
+    3,
+    3,
     "FD"
   );
 
-  let textY = y + 8;
+  // =====================================
+  // Title
+  // =====================================
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(...COLORS.dark);
 
-  doc.text("Subtotal", 115, textY);
   doc.text(
-    formatCurrency(subtotal),
-    185,
-    textY,
-    { align: "right" }
+    "PAYMENT SUMMARY",
+    cardX + 5,
+    y + 8
   );
 
-  textY += 8;
+  // =====================================
+  // Summary Rows
+  // =====================================
 
-  doc.text("Delivery", 115, textY);
+  let rowY = y + 18;
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+
+  // Subtotal
+  doc.text(
+    "Subtotal",
+    cardX + 5,
+    rowY
+  );
+
+  doc.text(
+    formatCurrency(subtotal),
+    cardX + cardWidth - 5,
+    rowY,
+    {
+      align: "right",
+    }
+  );
+
+  rowY += 8;
+
+  // Delivery
+  doc.text(
+    "Delivery Charge",
+    cardX + 5,
+    rowY
+  );
+
   doc.text(
     delivery === 0
       ? "FREE"
       : formatCurrency(delivery),
-    185,
-    textY,
-    { align: "right" }
+    cardX + cardWidth - 5,
+    rowY,
+    {
+      align: "right",
+    }
   );
 
-  textY += 10;
+  rowY += 8;
 
-  doc.setDrawColor(200);
-  doc.line(115, textY, 185, textY);
+  // Future Ready
+  doc.setTextColor(160);
 
-  textY += 10;
+  doc.text(
+    "Discount",
+    cardX + 5,
+    rowY
+  );
+
+  doc.text(
+    "₹0.00",
+    cardX + cardWidth - 5,
+    rowY,
+    {
+      align: "right",
+    }
+  );
+
+  doc.setTextColor(...COLORS.dark);
+
+  rowY += 10;
+
+  // Divider
+
+  doc.setDrawColor(220);
+
+  doc.line(
+    cardX + 5,
+    rowY,
+    cardX + cardWidth - 5,
+    rowY
+  );
+
+  rowY += 10;
+
+  // =====================================
+  // Grand Total
+  // =====================================
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(13);
 
-  doc.text("Grand Total", 115, textY);
+  doc.text(
+    "GRAND TOTAL",
+    cardX + 5,
+    rowY
+  );
 
   doc.text(
     formatCurrency(total),
-    185,
-    textY,
-    { align: "right" }
+    cardX + cardWidth - 5,
+    rowY,
+    {
+      align: "right",
+    }
   );
 
-  return y + 55;
+  return y + cardHeight + 8;
 }

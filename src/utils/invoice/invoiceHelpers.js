@@ -1,7 +1,6 @@
 export function formatCurrency(value) {
-  return `₹${Number(value).toFixed(2)}`;
+  return `Rs. ${Number(value).toFixed(2)}`;
 }
-
 export function getItemPrice(item) {
   return item.sellingPrice ?? item.price ?? 0;
 }

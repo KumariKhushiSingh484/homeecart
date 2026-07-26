@@ -26,13 +26,10 @@ import { formatDeliveryAddress } from "../utils/address/formatDeliveryAddress";
 import DeliveryMethod from "../components/checkout/DeliveryMethod";
 import DeliveryAddress from "../components/checkout/DeliveryAddress";
 import LocationSection from "../components/checkout/LocationSection";
-import { validatePurchaseRules } from "../utils/validation/validatePurchaseRules";
 import { getProducts } from "../services/productService";
-import RecommendedProducts from "../components/checkout/RecommendedProducts";
-import { recommendProducts } from "../utils/recommendation/recommendProducts";
-import CombinationCard from "../components/checkout/CombinationCard";
 import { recommendCombination } from "../utils/recommendation/recommendCombination";
 import LoginRequired from "../components/checkout/LoginRequired";
+import { validatePurchaseRules } from "../utils/validation/validatePurchaseRules";
 function Checkout() {
   /* -------------------------------------------------------------------------- */
   /* Contexts                                                                    */
@@ -254,20 +251,7 @@ const purchaseValidation =
     cartItems,
     businessSettings,
   });
-  const recommendedProducts =
-  recommendProducts({
-    products,
-    cartItems,
-    remainingPV:
-      purchaseValidation.remainingPV || 0,
-  });
-  const recommendedCombination =
-  recommendCombination({
-    products,
-    cartItems,
-    remainingPV:
-      purchaseValidation.remainingPV || 0,
-  });
+
   /* -------------------------------------------------------------------------- */
   /* Early Returns                                                               */
   /* -------------------------------------------------------------------------- */
@@ -681,48 +665,37 @@ const formattedAddress =
     p-4
   "
 >
-  <p className="text-center font-semibold text-orange-700">
-    🎯 Need only{" "}
-    <span className="font-bold">
-      {purchaseValidation.remainingPV} PV
-    </span>
-    !
-  </p>
+ <h3 className="text-center text-xl font-bold text-orange-700">
+  {purchaseValidation.remainingPV} More PV Required
+</h3>
 
-  <p className="mt-2 text-center text-sm text-gray-600">
-    Keep shopping to unlock checkout.
-  </p>
+  <p className="mt-2 text-center text-base text-gray-700">
+  Continue shopping to complete the required purchase value.
+</p>
 
-  {/* Recommended Products */}
-  <CombinationCard
-  products={recommendedCombination}
-  addToCart={addToCart}
-  showToast={showToast}
-/>
- <RecommendedProducts
-  products={recommendedProducts}
-  addToCart={addToCart}
-  showToast={showToast}
-  remainingPV={purchaseValidation.remainingPV}
-/>
-
-  <button
-    type="button"
-    onClick={closeCheckout}
-    className="
-      mt-4
-      w-full
-      rounded-lg
-      bg-orange-500
-      py-3
-      font-semibold
-      text-white
-      transition
-      hover:bg-orange-600
-    "
-  >
-    🛒 Continue Shopping
-  </button>
+  
+ 
+<button
+  type="button"
+  onClick={closeCheckout}
+  className="
+    mt-6
+    w-full
+    rounded-xl
+    bg-green-600
+    py-3.5
+    text-lg
+    font-semibold
+    text-white
+    shadow-md
+    transition-all
+    duration-200
+    hover:bg-green-700
+    hover:shadow-lg
+  "
+>
+  Continue Shopping
+</button>
 </div>
     )}
   </>

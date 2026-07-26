@@ -13,52 +13,58 @@ export function drawItems(
   items,
   y
 ) {
-  // =========================
+  const tableWidth = 170;
+  const rowHeight = 10;
+
+  // ======================================
   // Section Title
-  // =========================
+  // ======================================
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
+  doc.setFontSize(14);
   doc.setTextColor(...COLORS.dark);
 
   doc.text(
-    "Ordered Items",
+    "ORDER ITEMS",
     PAGE.left,
     y
   );
 
-  y += 10;
+  y += 8;
 
-  // =========================
-  // Table Header
-  // =========================
+  // ======================================
+  // Header
+  // ======================================
 
   doc.setFillColor(...COLORS.primary);
 
   doc.roundedRect(
     PAGE.left,
     y,
-    170,
-    10,
+    tableWidth,
+    rowHeight,
     2,
     2,
     "F"
   );
 
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
   doc.setTextColor(255, 255, 255);
 
-  doc.setFontSize(11);
+  doc.text("Product", 18, y + 6);
+  doc.text("Pack", 88, y + 6);
+  doc.text("Qty", 114, y + 6);
+  doc.text("Price", 136, y + 6);
+  doc.text("Total", 168, y + 6, {
+    align: "right",
+  });
 
-  doc.text("Product", 24, y + 7);
-  doc.text("Qty", 108, y + 7);
-  doc.text("Price", 130, y + 7);
-  doc.text("Amount", 162, y + 7);
+  y += rowHeight + 3;
 
-  y += 14;
-
-  // =========================
-  // Table Rows
-  // =========================
+  // ======================================
+  // Rows
+  // ======================================
 
   doc.setTextColor(...COLORS.dark);
 
@@ -68,59 +74,77 @@ export function drawItems(
       y = 20;
     }
 
-    const price =
-      getItemPrice(item);
+    const price = getItemPrice(item);
+    const amount = price * item.quantity;
 
-    const amount =
-      price * item.quantity;
+    const pack =
+      item.weight && item.unit
+        ? `${item.weight} ${item.unit}`
+        : "-";
 
-    // Alternate row color
     if (index % 2 === 0) {
-      doc.setFillColor(248, 250, 252);
+      doc.setFillColor(249, 250, 251);
 
       doc.rect(
         PAGE.left,
         y - 5,
-        170,
-        10,
+        tableWidth,
+        rowHeight,
         "F"
       );
     }
 
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
+    doc.setFontSize(10);
 
-    const productName =
+    const product =
       item.name.length > 28
         ? item.name.substring(0, 28) + "..."
         : item.name;
 
-    doc.text(
-      productName,
-      24,
-      y
-    );
+    doc.text(product, 18, y);
+
+    doc.text(pack, 88, y);
 
     doc.text(
       String(item.quantity),
-      108,
-      y
+      114,
+      y,
+      {
+        align: "center",
+      }
     );
 
     doc.text(
       formatCurrency(price),
-      130,
-      y
+      136,
+      y,
+      {
+        align: "right",
+      }
     );
 
     doc.text(
       formatCurrency(amount),
-      162,
-      y
+      168,
+      y,
+      {
+        align: "right",
+      }
     );
 
-    y += 10;
+    // Divider
+    doc.setDrawColor(235, 235, 235);
+
+    doc.line(
+      PAGE.left,
+      y + 4,
+      PAGE.left + tableWidth,
+      y + 4
+    );
+
+    y += rowHeight;
   });
 
-  return y + 8;
+  return y + 6;
 }

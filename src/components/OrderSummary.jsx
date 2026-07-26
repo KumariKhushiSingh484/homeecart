@@ -31,15 +31,20 @@ const totalWeight = calculateTotalWeight(items);
                 className="flex justify-between border-b pb-3"
               >
                 <div>
-                  <p className="font-semibold">
-                    {item.name}
-                  </p>
+  <p className="font-semibold">
+    {item.name}
+  </p>
 
-                  <p className="text-sm text-gray-500">
-                    Qty: {item.quantity}
-                  </p>
-                </div>
-
+  <p className="text-sm text-gray-500">
+    {item.weight && item.unit ? (
+      <>
+        {item.weight} {item.unit} • Qty: {item.quantity}
+      </>
+    ) : (
+      <>Qty: {item.quantity}</>
+    )}
+  </p>
+</div>
                 <p className="font-semibold">
                   ₹{price}
                 </p>

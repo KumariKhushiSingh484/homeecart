@@ -3,26 +3,28 @@ import { jsPDF } from "jspdf";
 import { calculateCartTotal } from "../cart/calculateCartTotal";
 
 import { drawInvoiceHeader } from "./invoiceHeader";
-import { drawCompany } from "./invoiceCompany";
-import { drawCustomer } from "./invoiceCustomer";
+import { drawParties } from "./invoiceParties";
 import { drawItems } from "./invoiceItems";
 import { drawSummary } from "./invoiceSummary";
 import { drawFooter } from "./invoiceFooter";
+import { drawInvoiceDetails } from "./invoiceDetails";
 
 export function generateInvoice(order) {
   const doc = new jsPDF();
 
   let y = drawInvoiceHeader(doc);
 
-  y = drawCompany(doc, y);
+y = drawInvoiceDetails(
+  doc,
+  order,
+  y
+);
 
-  y = drawCustomer(doc, order, y);
-
-  y = drawItems(
-    doc,
-    order.items,
-    y
-  );
+y = drawParties(
+  doc,
+  order,
+  y
+);
 
   const totals =
     calculateCartTotal(order.items);

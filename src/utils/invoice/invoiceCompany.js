@@ -5,43 +5,59 @@ import {
 } from "./invoiceConstants";
 
 export function drawCompany(doc, y) {
-  // Section Title
+  const cardWidth = 88;
+  const cardHeight = 38;
+
+  // ==============================
+  // FROM Title
+  // ==============================
+
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
+  doc.setFontSize(13);
   doc.setTextColor(...COLORS.dark);
 
-  doc.text(
-    "Company Information",
-    PAGE.left,
-    y
-  );
+  doc.text("FROM", PAGE.left, y);
 
-  y += 10;
+  y += 5;
 
-  // Card
+  // ==============================
+  // Card Background
+  // ==============================
+
   doc.setDrawColor(...COLORS.border);
-  doc.setFillColor(248, 250, 252);
+  doc.setFillColor(249, 250, 251);
 
   doc.roundedRect(
     PAGE.left,
     y,
-    80,
-    34,
-    2,
-    2,
+    cardWidth,
+    cardHeight,
+    3,
+    3,
     "FD"
   );
 
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
+  // ==============================
+  // Company Name
+  // ==============================
 
   let textY = y + 8;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
 
   doc.text(
     COMPANY.name,
     PAGE.left + 5,
     textY
   );
+
+  // ==============================
+  // Company Details
+  // ==============================
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
 
   textY += 7;
 
@@ -51,7 +67,7 @@ export function drawCompany(doc, y) {
     textY
   );
 
-  textY += 7;
+  textY += 6;
 
   doc.text(
     COMPANY.phone,
@@ -59,7 +75,7 @@ export function drawCompany(doc, y) {
     textY
   );
 
-  textY += 7;
+  textY += 6;
 
   doc.text(
     COMPANY.email,
@@ -67,6 +83,5 @@ export function drawCompany(doc, y) {
     textY
   );
 
-  // Return next Y position
-  return y + 45;
+  return y + cardHeight + 8;
 }

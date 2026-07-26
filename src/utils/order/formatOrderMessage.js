@@ -1,91 +1,107 @@
 import {
   ORDER_STATUS,
-  DELIVERY_METHOD,
-  PAYMENT_METHOD,
 } from "../../constants/order";
-export function formatOrderMessage({
-  orderNumber,
-  customerName,
-  phone,
-  address,
-  location,
-  items,
-  total,
-}) {
-  const now = new Date();
 
-  const orderDate = now.toLocaleDateString("en-IN");
+export function formatOrderMessage(order) {
+  const {
+    orderNumber,
+    customerName,
+    phone,
+    address,
+    location,
+    items,
+    subtotal,
+    deliveryCharge,
+    total,
+    deliveryMethod,
+    status,
+    createdAt,
+  } = order;
+  const orderDate = new Date(
+  createdAt || Date.now()
+).toLocaleDateString("en-IN", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
 
-  const orderTime = now
-    .toLocaleTimeString("en-IN", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    })
-    .toUpperCase();
+const orderTime = new Date(
+  createdAt || Date.now()
+).toLocaleTimeString("en-IN", {
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: true,
+});
+  const itemsTotal =
+    total - deliveryCharge;
 
-  return `HOMEECART
+return `🏡 HOMEECART
+━━━━━━━━━━━━━━━━━━━━━━
 
-================================
+🛒 NEW ORDER RECEIVED
 
-        NEW ORDER RECEIVED
+🆔 Order ID : ${orderNumber}
+📅 ${orderDate} • ${orderTime}
 
-================================
-
-Order No : ${orderNumber}
-
-Date : ${orderDate}
-Time : ${orderTime}
-
-================================
-
-CUSTOMER DETAILS
+━━━━━━━━━━━━━━━━━━━━━━
+👤 CUSTOMER
+━━━━━━━━━━━━━━━━━━━━━━
 
 Name    : ${customerName}
-
 Phone   : ${phone}
 
-Address :
+📍 Address
 ${address}
 
-================================
-
-ORDER ITEMS
+━━━━━━━━━━━━━━━━━━━━━━
+📦 PICK LIST
+━━━━━━━━━━━━━━━━━━━━━━
 
 ${items
-  .map(
-    (item) =>
-      `${item.name}
-Quantity : ${item.quantity}
-Unit Price : ₹${item.price}
-Subtotal : ₹${item.price * item.quantity}`
-  )
-  .join("\n\n")}
+  .map((item, index) => {
+    const price = Number(
+      item.sellingPrice ?? 0
+    );
 
-================================
+    const subtotal =
+      price * item.quantity;
 
-ORDER SUMMARY
+    const weight =
+      item.weight && item.unit
+        ? ` (${item.weight} ${item.unit})`
+        : "";
 
-Grand Total : ₹${total}
+    return `${index + 1}. ${item.quantity} × ${item.name}${weight}    ₹${subtotal}`;
+  })
+  .join("\n")}
 
-Delivery    : ${DELIVERY_METHOD}
+━━━━━━━━━━━━━━━━━━━━━━
+💰 PAYMENT SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━
 
-Payment     : ${PAYMENT_METHOD}
+Items Total       ₹${subtotal}
 
-================================
+Delivery Charge   ₹${deliveryCharge}
 
-CUSTOMER LOCATION
+────────────────────────
+Grand Total       ₹${total}
 
-Tap the link below to open Google Maps
+🚚 Delivery : ${
+  deliveryMethod === "pickup"
+    ? "Store Pickup"
+    : "Home Delivery"
+}
+
+📌 Status : ${status}
+
+━━━━━━━━━━━━━━━━━━━━━━
+📍 LOCATION
+━━━━━━━━━━━━━━━━━━━━━━
 
 ${location || "Location not shared"}
 
-================================
+━━━━━━━━━━━━━━━━━━━━━━
 
-Order Status : ${ORDER_STATUS.PENDING}
-
-Please prepare this order.
-
-Thank you,
-HOMEECART`;
+Thank you ❤️
+HomeeCart`;
 }

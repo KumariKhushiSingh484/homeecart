@@ -5,47 +5,72 @@ import {
 } from "./invoiceConstants";
 
 export function drawInvoiceHeader(doc) {
-  // Green Header
-  doc.setFillColor(...COLORS.primary);
-  doc.rect(0, 0, PAGE.width, 35, "F");
+  // =====================================================
+  // Header Background
+  // =====================================================
 
+  doc.setFillColor(...COLORS.primary);
+  doc.rect(0, 0, PAGE.width, 30, "F");
+
+  // =====================================================
   // Company Name
+  // =====================================================
+
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
   doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
 
   doc.text(
     COMPANY.name,
     PAGE.left,
-    18
+    15
   );
 
-  // Subtitle
-  doc.setFontSize(11);
+  // =====================================================
+  // Company Tagline
+  // =====================================================
+
   doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
 
   doc.text(
-    "Customer Invoice",
+    "Fresh • Local • Reliable",
     PAGE.left,
-    27
+    23
   );
 
+  // =====================================================
   // Invoice Title
-  doc.setFontSize(18);
+  // =====================================================
+
   doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
 
   doc.text(
-    "INVOICE",
+    "TAX INVOICE",
     PAGE.right,
-    18,
+    15,
     {
       align: "right",
     }
   );
 
+  // =====================================================
+  // Divider Line
+  // =====================================================
+
+  doc.setDrawColor(225, 225, 225);
+
+  doc.line(
+    PAGE.left,
+    36,
+    PAGE.right,
+    36
+  );
+
   // Reset text color
   doc.setTextColor(...COLORS.dark);
 
-  // Return next Y position
-  return 48;
+  // Next section starts here
+  return 42;
 }

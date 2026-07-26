@@ -16,17 +16,16 @@ function Logo({ logo }) {
           className="h-9 w-9 object-contain"
         />
       </div>
+<div className="text-left">
+  <h1 className="text-lg sm:text-xl font-bold tracking-tight text-gray-900">
+    HomeEcart
+  </h1>
 
-      <div className="hidden sm:block text-left">
-        <h1 className="text-xl font-bold tracking-tight text-gray-900">
-          HomeEcart
-        </h1>
-
-        <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-          <MapPin size={12} />
-          <span>Dehri-On-Sone</span>
-        </div>
-      </div>
+  <div className="hidden sm:flex mt-1 items-center gap-1 text-xs text-gray-500">
+    <MapPin size={12} />
+    <span>Dehri-On-Sone</span>
+  </div>
+</div>
     </button>
   );
 }
