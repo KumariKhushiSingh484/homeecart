@@ -33,6 +33,7 @@ import BusinessSettings from "./BusinessSettings";
 
 import { calculatePV } from "../services/pricingService";
 
+import BannerManagement from "./BannerManagement";
 
 
 function Admin() {
@@ -527,6 +528,9 @@ return (
       )}
 {activePage === "categories" && (
   <CategoryManagement />
+)}
+{activePage === "banners" && (
+  <BannerManagement />
 )}
       {activePage === "orders" && (
         <Orders />

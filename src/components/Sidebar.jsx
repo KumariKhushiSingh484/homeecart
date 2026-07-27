@@ -9,6 +9,10 @@ function Sidebar({ activePage, setActivePage }) {
       label: "🗂️ Categories",
     },
     {
+  id: "banners",
+  label: "🖼️ Banner Management",
+},
+    {
       id: "orders",
       label: "🛒 Orders",
     },

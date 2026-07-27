@@ -17,5 +17,5 @@ export const calculatePV = (
 
   const profit = selling - purchase;
 
-  return Math.max(0, profit * multiplier);
+  return profit * multiplier;
 };

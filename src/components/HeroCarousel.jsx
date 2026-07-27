@@ -5,21 +5,42 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
-import banner3 from "../assets/banners/banner3.jpg";
-import banner4 from "../assets/banners/banner4.jpg";
-const banners = [
-  banner3,
-  banner4,
-];
+import { useEffect, useState } from "react";
+import { getBanners } from "../services/bannerService";
 
 function HeroCarousel() {
+  const [banners, setBanners] =
+  useState([]);
+
+useEffect(() => {
+  async function loadBanners() {
+    try {
+      const bannerList =
+        await getBanners();
+
+      const activeBanners =
+        bannerList.filter(
+          (banner) => banner.isActive
+        );
+
+      setBanners(activeBanners);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  loadBanners();
+}, []);
+if (!banners.length) {
+  return null;
+}
   return (
     <div className="w-full px-4 mt-4">
       <Swiper
         modules={[Autoplay, Pagination, Navigation]}
         spaceBetween={20}
         slidesPerView={1}
-        loop={true}
+        loop={banners.length > 1}
         autoplay={{
           delay: 4000,
           disableOnInteraction: false,
@@ -29,11 +50,11 @@ function HeroCarousel() {
         className="rounded-2xl overflow-hidden shadow-lg"
       >
         {banners.map((banner, index) => (
-          <SwiperSlide key={index}>
-            <img
-              src={banner}
-              alt={`Banner ${index + 1}`}
-              className="w-full h-[180px] md:h-[230px] object-cover rounded-2xl"
+          <SwiperSlide key={banner.id}>
+           <img
+  src={banner.imageUrl}
+              alt={banner.title}
+              className="w-full h-[140px] sm:h-[180px] md:h-[230px] lg:h-[260px] object-cover rounded-2xl"
             />
           </SwiperSlide>
         ))}

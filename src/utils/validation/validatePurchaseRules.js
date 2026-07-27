@@ -15,11 +15,11 @@ export function validatePurchaseRules({
   }
 
   const totalPV = cartItems.reduce(
-    (total, item) =>
-      total +
-      (item.pv || 0) * item.quantity,
-    0
-  );
+  (total, item) =>
+    total +
+    Number(item.pv ?? 0) * item.quantity,
+  0
+);
 
   const minimumPV =
     businessSettings.minimumPurchasePV || 0;
