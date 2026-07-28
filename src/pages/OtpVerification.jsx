@@ -8,6 +8,7 @@ import { getCustomer } from "../services/customerService";
 import useToast from "../hooks/useToast";
 import ToastNotification from "../components/AppToast";
 import { getAuthErrorMessage } from "../utils/auth/getAuthErrorMessage";
+import { useCustomer } from "../context/CustomerContext";
 
 function OtpVerification() {
   const [otp, setOtp] = useState("");
@@ -15,6 +16,7 @@ function OtpVerification() {
   useState(false);
   const [countdown, setCountdown] =
   useState(30);
+  
 
 const [isResending, setIsResending] =
   useState(false);
@@ -24,7 +26,11 @@ const [isResending, setIsResending] =
   setToast,
   showToast,
 } = useToast();
-
+const {
+  authUser,
+  customer,
+  loadingCustomer,
+} = useCustomer();
   const customerPhone =
   sessionStorage.getItem("customerPhone") || "";
 
@@ -42,6 +48,37 @@ const maskedPhone =
 
   return () => clearTimeout(timer);
 }, [countdown]);
+useEffect(() => {
+  if (loadingCustomer) return;
+
+  if (!authUser) return;
+
+  const redirectAfterLogin =
+    sessionStorage.getItem("redirectAfterLogin");
+
+  if (customer) {
+    if (redirectAfterLogin === "checkout") {
+      sessionStorage.removeItem(
+        "redirectAfterLogin"
+      );
+
+      navigate("/", {
+        state: {
+          openCheckout: true,
+        },
+      });
+    } else {
+      navigate("/");
+    }
+  } else {
+    navigate("/complete-profile");
+  }
+}, [
+  authUser,
+  customer,
+  loadingCustomer,
+  navigate,
+]);
 
  const handleVerifyOTP = async () => {
   if (otp.length !== 6) {
@@ -59,30 +96,14 @@ const maskedPhone =
 
     console.log("Customer Logged In:", user);
 
-   const customer = await getCustomer(user.uid);
-
-const redirectAfterLogin =
-  sessionStorage.getItem("redirectAfterLogin");
-
-if (customer) {
-  if (redirectAfterLogin === "checkout") {
-    sessionStorage.removeItem(
-      "redirectAfterLogin"
-    );
-
-    navigate("/", {
-      state: {
-        openCheckout: true,
-      },
-    });
-  } else {
-    navigate("/");
-  }
-} else {
-  navigate("/complete-profile");
-}
+  // CustomerContext will handle the profile.
+// Navigation will happen in useEffect.
   } catch (error) {
-    console.error(error);
+    console.error("========== OTP ERROR ==========");
+console.error("Complete Error:", error);
+console.error("Error Code:", error.code);
+console.error("Error Message:", error.message);
+console.error("===============================");
 showToast(
   "error",
   getAuthErrorMessage(error)
@@ -117,7 +138,11 @@ const handleResendOTP = async () => {
   "OTP resent successfully."
 );
   } catch (error) {
-    console.error(error);
+    console.error("========== OTP ERROR ==========");
+console.error("Complete Error:", error);
+console.error("Error Code:", error.code);
+console.error("Error Message:", error.message);
+console.error("===============================");
    showToast(
   "error",
   getAuthErrorMessage(error)

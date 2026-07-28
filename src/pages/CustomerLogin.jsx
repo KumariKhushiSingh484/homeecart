@@ -57,14 +57,19 @@ const handleSendOTP = async () => {
 );
 
     navigate("/verify-otp");
-  } catch (error) {
-    console.error(error);
+ } catch (error) {
+  console.error("========== OTP ERROR ==========");
+  console.error("Complete Error:", error);
+  console.error("Error Code:", error.code);
+  console.error("Error Message:", error.message);
+  console.error("===============================");
 
-   showToast(
-  "error",
-  getAuthErrorMessage(error)
-);
-  } finally {
+  showToast(
+    "error",
+    getAuthErrorMessage(error)
+  );
+}
+   finally {
     setIsSendingOtp(false);
   }
 };

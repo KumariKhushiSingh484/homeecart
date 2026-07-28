@@ -70,9 +70,9 @@ function Checkout() {
   const [phone, setPhone] =
     useState("");
 
-  const [deliveryMethod, setDeliveryMethod] =
-    useState("delivery");
-
+ const [deliveryMethod, setDeliveryMethod] =
+  useState("pickup");
+  
   const [pincode, setPincode] =
     useState("");
 

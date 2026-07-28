@@ -12,9 +12,11 @@ import { auth } from "./firebase";
  */
 export const setupRecaptcha = async () => {
   if (window.recaptchaVerifier) {
-    return window.recaptchaVerifier;
+    window.recaptchaVerifier.clear();
+    window.recaptchaVerifier = null;
   }
 
+  
   window.recaptchaVerifier = new RecaptchaVerifier(
     auth,
     "recaptcha-container",
