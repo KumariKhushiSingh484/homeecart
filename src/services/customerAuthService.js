@@ -5,7 +5,8 @@ import {
 } from "firebase/auth";
 
 import { auth } from "./firebase";
-
+import { incrementLogins } from "./analyticsService";
+import { updateCustomerLogin } from "./customerService";
 /**
  * Initialize reCAPTCHA only once.
  * Reuse the existing verifier for OTP resend.
@@ -60,7 +61,11 @@ export const verifyOTP = async (otp) => {
   }
 
   const result =
-    await window.confirmationResult.confirm(otp);
+  await window.confirmationResult.confirm(otp);
+
+await incrementLogins();
+
+await updateCustomerLogin(result.user.uid);
 
   // Clean up after successful verification
   if (window.recaptchaVerifier) {

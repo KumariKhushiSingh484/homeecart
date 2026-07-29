@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 
 import { db } from "./firebase";
+import { updateCustomerStats } from "./customerService";
 
 // ============================================
 // Create Order
@@ -18,14 +19,25 @@ import { db } from "./firebase";
 
 export async function createOrder(orderData) {
   const orderRef = await addDoc(
-    collection(db, "orders"),
-    {
-      ...orderData,
-      createdAt: serverTimestamp(),
-    }
-  );
+  collection(db, "orders"),
+  {
+    ...orderData,
+    createdAt: serverTimestamp(),
+  }
+);
+const totalPV = orderData.items.reduce(
+  (total, item) => total + ((item.pv || 0) * item.quantity),
+  0
+);
 
-  return orderRef;
+// Update Customer Statistics
+await updateCustomerStats(
+  orderData.uid,
+  orderData.total,
+  totalPV
+);
+
+return orderRef;
 }
 
 // ============================================

@@ -34,13 +34,15 @@ import BusinessSettings from "./BusinessSettings";
 import { calculatePV } from "../services/pricingService";
 
 import BannerManagement from "./BannerManagement";
-
+import { getAnalytics } from "../services/analyticsService";
+import Dashboard from "./Dashboard";
+import Customers from "./Customers";
 
 function Admin() {
   // ==================== UI State ====================
 
   const [activePage, setActivePage] =
-    useState("products");
+  useState("dashboard");
 
 
   // ==================== Data ====================
@@ -119,6 +121,11 @@ function Admin() {
     setIsEditing,
   ] = useState(false);
 
+
+  const [analytics, setAnalytics] = useState({
+  totalVisitors: 0,
+  totalLogins: 0,
+});
   // ==================== Toast ====================
 
   const {
@@ -180,7 +187,17 @@ const fetchProducts = async () => {
     );
   }
 };
+const fetchAnalytics = async () => {
+  const data = await getAnalytics();
 
+  if (data) {
+    setAnalytics(data);
+  }
+};
+useEffect(() => {
+  fetchProducts();      // if you already have this
+  fetchAnalytics();
+}, []);
 const deleteProduct = async (product) => {
   if (
     !window.confirm(
@@ -385,9 +402,7 @@ unit,
 };
 // ==================== Effects ====================
 
-useEffect(() => {
-  fetchProducts();
-}, []);
+
 const filteredProducts = [...products]
   .filter((product) => {
     const search = searchTerm.toLowerCase();
@@ -438,6 +453,9 @@ return (
       activePage={activePage}
       setActivePage={setActivePage}
     />
+    {activePage === "dashboard" && (
+  <Dashboard />
+)}
 
     <div className="flex-1 p-10">
       {activePage === "products" && (
@@ -537,11 +555,8 @@ return (
       )}
 
       {activePage === "customers" && (
-  <div className="text-2xl font-semibold">
-    Customers Page (Coming Soon)
-  </div>
+  <Customers />
 )}
-
 {activePage === "business-settings" && (
   <BusinessSettings />
 )}

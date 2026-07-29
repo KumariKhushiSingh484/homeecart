@@ -1,6 +1,10 @@
 function Sidebar({ activePage, setActivePage }) {
   const menuItems = [
     {
+  id: "dashboard",
+  label: "📊 Dashboard",
+},
+    {
       id: "products",
       label: "📦 Products",
     },

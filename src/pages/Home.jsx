@@ -10,6 +10,7 @@ import Categories from "../components/Categories";
 import ProductGrid from "../components/ProductGrid";
 
 import { useSearch } from "../context/SearchContext";
+import { trackVisitor } from "../utils/visitorTracker";
 
 function Home() {
   const [products, setProducts] = useState([]);
@@ -55,6 +56,9 @@ useEffect(() => {
     });
   }
 }, [location, navigate, openCheckout]);
+useEffect(() => {
+  trackVisitor();
+}, []);
   const filteredProducts = useMemo(() => {
     const search = searchTerm
       .trim()
