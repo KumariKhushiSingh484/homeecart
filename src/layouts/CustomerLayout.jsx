@@ -4,6 +4,7 @@ import CartToast from "../components/CartToast";
 import CartModal from "../components/CartModal";
 import Checkout from "../pages/Checkout";
 import OrderSuccessModal from "../components/OrderSuccessModal";
+import FloatingCartBar from "../components/cart/FloatingCartBar";
 
 import logo from "../assets/logo.png";
 
@@ -38,6 +39,9 @@ function CustomerLayout({ children }) {
       <main className="flex-1">
         {children}
       </main>
+
+{/* Floating Cart */}
+<FloatingCartBar />
 
       {/* Footer */}
       <Footer />

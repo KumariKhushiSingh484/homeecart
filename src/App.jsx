@@ -20,7 +20,9 @@ import { generateOrderNumber } from "./utils/order/generateOrderNumber";
 import AdminLogin from "./pages/AdminLogin";
 import HeroCarousel from "./components/HeroCarousel";
 import { useCart } from "./context/CartContext";
+import { SearchProvider } from "./context/SearchContext";
 function App() {
+  console.log("🚀 App.jsx Loaded");
   const [products, setProducts] = useState([]);
   
   const [showCart, setShowCart] = useState(false);
@@ -51,7 +53,15 @@ function App() {
         ...doc.data(),
       }));
 
-      setProducts(productList);
+      const activeProducts = productList.filter(
+  (product) => product.isActive !== false
+);
+console.log("All Products:", productList);
+console.log(
+  "Filtered Products:",
+  activeProducts
+);
+setProducts(activeProducts);
       console.log(productList);
     } catch (error) {
       console.error("Error fetching products:", error);

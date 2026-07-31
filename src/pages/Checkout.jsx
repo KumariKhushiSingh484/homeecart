@@ -30,6 +30,7 @@ import { getProducts } from "../services/productService";
 import { recommendCombination } from "../utils/recommendation/recommendCombination";
 import LoginRequired from "../components/checkout/LoginRequired";
 import { validatePurchaseRules } from "../utils/validation/validatePurchaseRules";
+import { validateStock } from "../services/inventoryService";
 function Checkout() {
   /* -------------------------------------------------------------------------- */
   /* Contexts                                                                    */
@@ -149,25 +150,24 @@ useEffect(() => {
   /* -------------------------------------------------------------------------- */
 
   useEffect(() => {
-    async function loadBusinessSettings() {
-      try {
-        const settings =
-          await getBusinessSettings();
+  async function loadBusinessSettings() {
+    try {
+      const settings =
+        await getBusinessSettings();
 
-        setBusinessSettings(settings);
-      } catch (error) {
-        console.error(error);
+      console.log(
+        "Business Settings:",
+        settings
+      );
 
-        showToast(
-          "error",
-          "Failed to load business settings."
-        );
-      }
+      setBusinessSettings(settings);
+    } catch (error) {
+      console.error(error);
     }
+  }
 
-    loadBusinessSettings();
-  }, []);
-
+  loadBusinessSettings();
+}, []);
   /* -------------------------------------------------------------------------- */
   /* Delivery Calculation                                                        */
   /* -------------------------------------------------------------------------- */
@@ -382,6 +382,16 @@ const purchaseValidation =
     setIsPlacingOrder(true);
 
     try {
+      const stockValidation = await validateStock(cartItems);
+
+if (!stockValidation.valid) {
+  showToast(
+    "error",
+    stockValidation.message
+  );
+
+  return;
+}
       const orderNumber =
         generateOrderNumber();
 const formattedAddress =

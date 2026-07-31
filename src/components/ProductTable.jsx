@@ -2,6 +2,7 @@ function ProductTable({
   products,
   deleteProduct,
   editProduct,
+  toggleProductStatus,
 }) {
   return (
     <div className="mt-10 w-full max-w-6xl">
@@ -18,6 +19,9 @@ function ProductTable({
             <th className="p-3 text-center">Stock</th>
             <th className="p-3 text-center">Weight</th>
             <th className="p-3 text-center">Unit</th>
+            <th className="p-3 text-center">
+  Status
+</th>
             <th className="p-3 text-center">Action</th>
           </tr>
         </thead>
@@ -51,7 +55,22 @@ function ProductTable({
               <td className="p-3 text-center">
                 {product.unit || "-"}
               </td>
-
+<td className="p-3 text-center">
+  <button
+    onClick={() => toggleProductStatus(product)}
+    className="font-semibold transition hover:scale-105"
+  >
+    {product.isActive !== false ? (
+      <span className="text-green-600">
+        🟢 Active
+      </span>
+    ) : (
+      <span className="text-red-600">
+        🔴 Hidden
+      </span>
+    )}
+  </button>
+</td>
               <td className="p-3">
                 <div className="flex justify-center gap-2">
                   <button

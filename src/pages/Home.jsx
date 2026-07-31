@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useShopping } from "../context/ShoppingContext";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 
 import { db } from "../services/firebase";
 
@@ -23,25 +28,39 @@ const navigate = useNavigate();
 const { openCheckout } = useShopping();
 
   useEffect(() => {
-    async function loadProducts() {
-      try {
-        const snapshot = await getDocs(
-          collection(db, "products")
-        );
+   async function loadProducts() {
+  try {
+    const snapshot = await getDocs(
+      collection(db, "products")
+    );
 
-        const productList = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+    const productList = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-        setProducts(productList);
-      } catch (error) {
-        console.error(
-          "Failed to load products:",
-          error
-        );
-      }
-    }
+    const activeProducts = productList.filter(
+      (product) => product.isActive !== false
+    );
+
+    console.log("All products:", productList.length);
+    console.log("Active products:", activeProducts.length);
+
+    console.table(
+      activeProducts.map((p) => ({
+        name: p.name,
+        isActive: p.isActive,
+      }))
+    );
+
+    setProducts(activeProducts);
+  } catch (error) {
+    console.error(
+      "Failed to load products:",
+      error
+    );
+  }
+}
 
     loadProducts();
   }, []);

@@ -1,15 +1,25 @@
+import { useEffect, useState } from "react";
+
 import { useCart } from "../context/CartContext";
 import { useShopping } from "../context/ShoppingContext";
 
+import { getBusinessSettings } from "../services/settingsService";
+import { validatePurchaseRules } from "../utils/validation/validatePurchaseRules";
+
+import CartHeader from "./cart/CartHeader";
+import CartItemList from "./cart/CartItemList";
+import CartSummary from "./cart/CartSummary";
+import EmptyCart from "./cart/EmptyCart";
+
 function CartModal() {
   const {
-  cartItems,
-  cartCount,
-  cartSubtotal,
-  increaseQuantity,
-  decreaseQuantity,
-  deleteFromCart,
-} = useCart();
+    cartItems,
+    cartCount,
+    cartSubtotal,
+    increaseQuantity,
+    decreaseQuantity,
+    deleteFromCart,
+  } = useCart();
 
   const {
     showCart,
@@ -17,207 +27,69 @@ function CartModal() {
     openCheckout,
   } = useShopping();
 
+  const [businessSettings, setBusinessSettings] =
+    useState(null);
+
+ useEffect(() => {
+  async function loadBusinessSettings() {
+    try {
+      const settings =
+        await getBusinessSettings();
+
+      console.log(
+        "Business Settings:",
+        settings
+      );
+
+      setBusinessSettings(settings);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  loadBusinessSettings();
+}, []);
+  const purchaseValidation =
+    validatePurchaseRules({
+      cartItems,
+      businessSettings,
+    });
+
   if (!showCart) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+      <div className="mx-auto flex h-dvh w-full max-w-md flex-col bg-white shadow-2xl">
 
-      <div className="bg-white w-full max-w-md rounded-3xl shadow-2xl flex flex-col max-h-[90vh]">
+        <CartHeader
+          cartCount={cartCount}
+          onClose={closeCart}
+        />
 
-        {/* ================= HEADER ================= */}
+       {cartItems.length === 0 ? (
+  <EmptyCart
+    onContinueShopping={closeCart}
+  />
+) : (
+  <div className="flex flex-1 min-h-0 flex-col">
+    <CartItemList
+      cartItems={cartItems}
+      increaseQuantity={increaseQuantity}
+      decreaseQuantity={decreaseQuantity}
+      deleteFromCart={deleteFromCart}
+    />
 
-        <div className="flex items-center justify-between px-6 py-5 border-b">
-
-          <div>
-            <h2 className="text-2xl font-bold">
-              🛒 Shopping Cart
-            </h2>
-
-            <p className="text-sm text-gray-500 mt-1">
-              {cartCount} Item{cartCount !== 1 ? "s" : ""}
-            </p>
-          </div>
-
-          <button
-            onClick={closeCart}
-            className="text-2xl text-gray-400 hover:text-red-500 transition"
-          >
-            ✕
-          </button>
-
-        </div>
-
-        {/* ================= PRODUCTS ================= */}
-
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-
-          {cartItems.length === 0 ? (
-
-            <div className="flex flex-col items-center justify-center h-full py-16">
-
-              <div className="text-7xl mb-5">
-                🛒
-              </div>
-
-              <h3 className="text-2xl font-bold">
-                Your cart is empty
-              </h3>
-
-              <p className="text-gray-500 text-center mt-3">
-                Looks like you haven't added anything yet.
-              </p>
-
-              <button
-                onClick={closeCart}
-                className="mt-8 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold transition"
-              >
-                Continue Shopping
-              </button>
-
-            </div>
-
-          ) : (
-
-            cartItems.map((item) => {
-
-              const price =
-                item.sellingPrice ?? item.price;
-
-              return (
-
-                <div
-                  key={item.id}
-                  className="flex gap-4 py-5 border-b last:border-b-0"
-                >
-
-                  {/* Image */}
-
-                  <div className="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden flex-shrink-0">
-
-                    {item.image ? (
-
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-
-                    ) : (
-
-                      <div className="w-full h-full flex items-center justify-center text-3xl">
-                        📦
-                      </div>
-
-                    )}
-
-                  </div>
-
-                  {/* Product Details */}
-
-                  <div className="flex-1">
-
-                    <h3 className="font-semibold text-gray-800">
-                      {item.name}
-                    </h3>
-
-                    <p className="text-sm text-gray-500 mt-1">
-                      ₹{price} × {item.quantity}
-                    </p>
-
-                    <p className="text-lg font-bold text-green-600 mt-1">
-                      ₹{price * item.quantity}
-                    </p>
-
-                    <button
-                      onClick={() =>
-                        deleteFromCart(item.id)
-                      }
-                      className="mt-2 text-sm text-red-500 hover:text-red-700 transition"
-                    >
-                      🗑 Remove
-                    </button>
-
-                  </div>
-
-                  {/* Quantity Controls */}
-
-                  <div className="flex flex-col justify-center">
-
-                    <div className="flex items-center gap-2">
-
-                      <button
-                        onClick={() =>
-                          decreaseQuantity(item.id)
-                        }
-                        className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white font-bold transition"
-                      >
-                        −
-                      </button>
-
-                      <span className="w-6 text-center font-bold">
-                        {item.quantity}
-                      </span>
-
-                      <button
-                        onClick={() =>
-                          increaseQuantity(item.id)
-                        }
-                        className="w-8 h-8 rounded-full bg-green-600 hover:bg-green-700 text-white font-bold transition"
-                      >
-                        +
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              );
-
-            })
-
-          )}
-
-        </div>
-
-        {/* ================= FOOTER ================= */}
-
-        {cartItems.length > 0 && (
-
-          <div className="border-t bg-gray-50 px-6 py-5 rounded-b-3xl">
-
-            <div className="flex justify-between mb-2">
-
-              <span className="text-gray-600">
-                Subtotal
-              </span>
-
-              <span className="font-medium">
-                ₹{cartSubtotal}
-              </span>
-
-            </div>
-
-           
-
-          <div className="mt-3 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
-  🚚 Delivery charges will be calculated during checkout based on your order and delivery location.
-</div>
-
-            <button
-              onClick={openCheckout}
-              className="w-full mt-6 bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl text-lg font-semibold transition"
-            >
-              Proceed to Checkout →
-            </button>
-
-          </div>
-
-        )}
+    <CartSummary
+      cartSubtotal={cartSubtotal}
+      purchaseValidation={purchaseValidation}
+      businessSettings={businessSettings}
+      onCheckout={openCheckout}
+      onContinueShopping={closeCart}
+    />
+  </div>
+)}
 
       </div>
-
     </div>
   );
 }

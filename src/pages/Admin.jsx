@@ -241,7 +241,36 @@ const deleteProduct = async (product) => {
     );
   }
 };
+const toggleProductStatus = async (product) => {
+  console.log("Toggle clicked");
+  console.log(product);
 
+  try {
+    const productRef = doc(db, "products", product.id);
+
+    await updateDoc(productRef, {
+      isActive: !product.isActive,
+    });
+
+    console.log("Firestore updated successfully");
+
+    await fetchProducts();
+
+    showToast(
+      "success",
+      `Product ${
+        product.isActive ? "hidden" : "activated"
+      } successfully`
+    );
+  } catch (error) {
+    console.error("Toggle Error:", error);
+
+    showToast(
+      "error",
+      "Failed to update product status"
+    );
+  }
+};
 const editProduct = (product) => {
   setEditingId(product.id);
 
@@ -329,6 +358,14 @@ console.log("unit:", unit);
       category,
 
       image: imageUrl,
+
+        // Product Status
+  isActive:
+    isEditing
+        ? products.find(
+            (p) => p.id === editingId
+          )?.isActive ?? true
+        : true,
 
       // Pricing
 
@@ -537,10 +574,11 @@ return (
     "
   />
 </div>
-          <ProductTable
+        <ProductTable
   products={filteredProducts}
   deleteProduct={deleteProduct}
   editProduct={editProduct}
+  toggleProductStatus={toggleProductStatus}
 />
         </>
       )}
