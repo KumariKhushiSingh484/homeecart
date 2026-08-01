@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 
 import { db } from "../services/firebase";
 import { useCart } from "../context/CartContext";
 
 import ProductGrid from "../components/ProductGrid";
-
+import { useSearch } from "../context/SearchContext";
 function CategoryProducts() {
   const { categoryName } = useParams();
   const { addToCart } = useCart();
@@ -17,48 +17,52 @@ function CategoryProducts() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [search, setSearch] = useState("");
+  const { searchTerm, setSearchTerm } = useSearch();
   const [sortBy, setSortBy] = useState("default");
 
   useEffect(() => {
-    async function loadProducts() {
-      setLoading(true);
+  async function loadProducts() {
+    setLoading(true);
 
-      try {
-        const snapshot = await getDocs(
-          collection(db, "products")
-        );
+    try {
+      const snapshot = await getDocs(
+        collection(db, "products")
+      );
 
-        const allProducts = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+      const allProducts = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-        setProducts(
-          allProducts.filter(
-            (product) =>
-              product.category === category
-          )
-        );
-      } catch (error) {
-        console.error(
-          "Failed to load category products:",
-          error
-        );
-      } finally {
-        setLoading(false);
-      }
+      setProducts(
+        allProducts.filter(
+          (product) => product.category === category
+        )
+      );
+    } catch (error) {
+      console.error(
+        "Failed to load category products:",
+        error
+      );
+    } finally {
+      setLoading(false);
     }
+  }
 
-    loadProducts();
-  }, [category]);
+  loadProducts();
+}, [category]);
+
+// Clear search when entering a new category
+useEffect(() => {
+  setSearchTerm("");
+}, [category, setSearchTerm]);
 
   const filteredProducts = useMemo(() => {
-    let filtered = products.filter((product) =>
-      product.name
-        ?.toLowerCase()
-        .includes(search.toLowerCase())
-    );
+  let filtered = products.filter((product) =>
+    product.name
+      ?.toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
 
     switch (sortBy) {
       case "price-low":
@@ -88,7 +92,7 @@ function CategoryProducts() {
     }
 
     return filtered;
-  }, [products, search, sortBy]);
+  }, [products, searchTerm, sortBy]);
 
   if (loading) {
     return (
@@ -132,24 +136,8 @@ function CategoryProducts() {
           </p>
         </div>
 
-        {/* Search */}
-
-        <div className="relative w-full md:max-w-sm">
-          <Search
-            size={18}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-
-          <input
-            type="text"
-            placeholder={`Search in ${category}`}
-            value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-            className="w-full rounded-xl border border-gray-200 py-3 pl-11 pr-4 outline-none transition focus:border-green-500"
-          />
-        </div>
+       
+       
       </div>
 
       {/* Toolbar */}

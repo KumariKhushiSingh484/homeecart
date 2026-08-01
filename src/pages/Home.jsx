@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useShopping } from "../context/ShoppingContext";
 import {
@@ -22,6 +27,7 @@ function Home() {
   const [selectedCategory] = useState("");
 
   const { searchTerm } = useSearch();
+  const productsRef = useRef(null);
   const location = useLocation();
 const navigate = useNavigate();
 
@@ -78,6 +84,18 @@ useEffect(() => {
 useEffect(() => {
   trackVisitor();
 }, []);
+useEffect(() => {
+  if (!searchTerm.trim()) return;
+
+  const timer = setTimeout(() => {
+    productsRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 150);
+
+  return () => clearTimeout(timer);
+}, [searchTerm]);
   const filteredProducts = useMemo(() => {
     const search = searchTerm
       .trim()
@@ -126,7 +144,10 @@ useEffect(() => {
       <HeroCarousel />
 
       <Categories />
-<section className="mx-auto max-w-7xl px-4 pt-10">
+<section
+  ref={productsRef}
+  className="mx-auto max-w-7xl px-4 pt-10"
+>
   <div className="mb-8">
     <h2 className="text-3xl font-bold text-gray-900">
       ⭐ Featured Products
