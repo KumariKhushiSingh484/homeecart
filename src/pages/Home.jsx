@@ -157,7 +157,7 @@ useEffect(() => {
       Best prices on your daily essentials.
     </p>
   </div>
-
+ 
   <ProductGrid
     filteredProducts={filteredProducts}
   />
