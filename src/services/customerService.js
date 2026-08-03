@@ -7,6 +7,8 @@ import {
   updateDoc,
   increment,
   serverTimestamp,
+  query,
+  orderBy,
 } from "firebase/firestore";
 
 import { db } from "./firebase";
@@ -81,11 +83,18 @@ export const updateCustomerStats = async (
     );
   }
 };
+
+
+// ...keep all your other functions unchanged
+
 export const getAllCustomers = async () => {
   try {
-    const snapshot = await getDocs(
-      collection(db, "customers")
+    const customersQuery = query(
+      collection(db, "customers"),
+      orderBy("lastLogin", "desc")
     );
+
+    const snapshot = await getDocs(customersQuery);
 
     return snapshot.docs.map((doc) => ({
       id: doc.id,

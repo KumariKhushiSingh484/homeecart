@@ -58,7 +58,29 @@ export async function getCustomerOrders(uid) {
     ...doc.data(),
   }));
 }
+// ============================================
+// Get Recent Customer Orders (Admin)
+// ============================================
 
+export async function getRecentCustomerOrders(
+  uid,
+  limitCount = 5
+) {
+  const ordersQuery = query(
+    collection(db, "orders"),
+    where("uid", "==", uid),
+    orderBy("createdAt", "desc")
+  );
+
+  const snapshot = await getDocs(ordersQuery);
+
+  return snapshot.docs
+    .slice(0, limitCount)
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+}
 // ============================================
 // Get Single Order
 // ============================================

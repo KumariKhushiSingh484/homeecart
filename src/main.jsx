@@ -1,6 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Outlet,
+} from "react-router-dom";
 
 import "./index.css";
 
@@ -12,6 +17,10 @@ import OtpVerification from "./pages/OtpVerification";
 import CompleteProfile from "./pages/CompleteProfile";
 import CategoryProducts from "./pages/CategoryProducts";
 import ProductDetails from "./pages/ProductDetails";
+import MyOrders from "./pages/MyOrders";
+import OrderDetails from "./pages/OrderDetails";
+import CustomerProfile from "./pages/CustomerProfile";
+import BusinessSettings from "./pages/BusinessSettings";
 
 import CustomerLayout from "./layouts/CustomerLayout";
 
@@ -19,113 +28,106 @@ import AuthProvider from "./context/AuthContext";
 import { CartProvider } from "./context/CartContext";
 import { ShoppingProvider } from "./context/ShoppingContext";
 import { CustomerProvider } from "./context/CustomerContext";
+import { SearchProvider } from "./context/SearchContext";
 
 import ProtectedRoute from "./components/ProtectedRoute";
-import MyOrders from "./pages/MyOrders";
-import OrderDetails from "./pages/OrderDetails";
-import CustomerProfile from "./pages/CustomerProfile";
-
-import BusinessSettings from "./pages/BusinessSettings";
-import { SearchProvider } from "./context/SearchContext";
+import CustomerProtectedRoute from "./components/CustomerProtectedRoute";
+import CustomerDetails from "./pages/CustomerDetails";
+import AdminOrderDetails from "./pages/AdminOrderDetails";
+function ProtectedCustomerLayout() {
+  return (
+    <CustomerProtectedRoute>
+      <CustomerLayout>
+        <Outlet />
+      </CustomerLayout>
+    </CustomerProtectedRoute>
+  );
+  
+}
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-   <AuthProvider>
-  <CartProvider>
-    <CustomerProvider>
-      <ShoppingProvider>
-        <SearchProvider>
-          <BrowserRouter>
+    <AuthProvider>
+      <CartProvider>
+        <CustomerProvider>
+          <ShoppingProvider>
+            <SearchProvider>
+              <BrowserRouter>
+                <Routes>
+                  {/* ========================= */}
+                  {/* Public Customer Routes */}
+                  {/* ========================= */}
 
-              <Routes>
+                  <Route
+                    path="/login"
+                    element={<CustomerLogin />}
+                  />
 
-                {/* ========================= */}
-                {/* Customer */}
-                {/* ========================= */}
+                  <Route
+                    path="/verify-otp"
+                    element={<OtpVerification />}
+                  />
 
-                <Route
-                  path="/"
-                  element={
-                    <CustomerLayout>
-                      <Home />
-                    </CustomerLayout>
-                  }
-                />
+                  <Route
+                    path="/complete-profile"
+                    element={<CompleteProfile />}
+                  />
 
-                <Route
-                  path="/categories/:categoryName"
-                  element={
-                    <CustomerLayout>
-                      <CategoryProducts />
-                    </CustomerLayout>
-                  }
-                />
+                  {/* ========================= */}
+                  {/* Protected Customer Routes */}
+                  {/* ========================= */}
 
-                <Route
-                  path="/product/:id"
-                  element={
-                    <CustomerLayout>
-                      <ProductDetails />
-                    </CustomerLayout>
-                  }
-                />
+                  <Route
+                    element={<ProtectedCustomerLayout />}
+                  >
+                    <Route
+                      path="/"
+                      element={<Home />}
+                    />
 
-                <Route
-                  path="/login"
-                  element={<CustomerLogin />}
-                />
+                    <Route
+                      path="/categories/:categoryName"
+                      element={<CategoryProducts />}
+                    />
 
-                <Route
-                  path="/verify-otp"
-                  element={<OtpVerification />}
-                />
+                    <Route
+                      path="/product/:id"
+                      element={<ProductDetails />}
+                    />
 
-                <Route
-                  path="/complete-profile"
-                  element={<CompleteProfile />}
-                />
-               
-               <Route
-  path="/my-orders"
-  element={
-    <CustomerLayout>
-      <MyOrders />
-    </CustomerLayout>
-  }
-/>
-<Route
-  path="/order/:orderId"
-  element={
-    <CustomerLayout>
-      <OrderDetails />
-    </CustomerLayout>
-  }
-/>
-<Route
-  path="/profile"
-  element={
-    <CustomerLayout>
-      <CustomerProfile />
-    </CustomerLayout>
-  }
-/>
-                {/* ========================= */}
-                {/* Admin */}
-                {/* ========================= */}
+                    <Route
+                      path="/my-orders"
+                      element={<MyOrders />}
+                    />
 
-                <Route
-                  path="/admin-login"
-                  element={<AdminLogin />}
-                />
+                    <Route
+                      path="/order/:orderId"
+                      element={<OrderDetails />}
+                    />
 
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute>
-                      <Admin />
-                    </ProtectedRoute>
-                  }
-                />
+                    <Route
+                      path="/profile"
+                      element={<CustomerProfile />}
+                    />
+                  </Route>
+
+                  {/* ========================= */}
+                  {/* Admin Routes */}
+                  {/* ========================= */}
+
+                  <Route
+                    path="/admin-login"
+                    element={<AdminLogin />}
+                  />
+
+                  <Route
+                    path="/admin"
+                    element={
+                      <ProtectedRoute>
+                        <Admin />
+                      </ProtectedRoute>
+                    }
+                  />
 
                 <Route
   path="/business-settings"
@@ -136,11 +138,27 @@ createRoot(document.getElementById("root")).render(
   }
 />
 
-              </Routes>
-
-                     </BrowserRouter>
-        </SearchProvider>
-      </ShoppingProvider>
+<Route
+  path="/admin/customers/:customerId"
+  element={
+    <ProtectedRoute>
+      <CustomerDetails />
+    </ProtectedRoute>
+  }
+/>
+   <Route
+  path="/admin/orders/:orderId"
+  element={
+    <ProtectedRoute>
+      <AdminOrderDetails />
+    </ProtectedRoute>
+  }
+/>
+         
+                </Routes>
+              </BrowserRouter>
+            </SearchProvider>
+          </ShoppingProvider>
         </CustomerProvider>
       </CartProvider>
     </AuthProvider>
