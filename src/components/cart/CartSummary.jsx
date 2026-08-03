@@ -22,10 +22,12 @@ function CartSummary({
         </span>
       </div>
 
-      <PurchaseValueCard
-        purchaseValidation={purchaseValidation}
-        businessSettings={businessSettings}
-      />
+    {
+<PurchaseValueCard
+  purchaseValidation={purchaseValidation}
+  businessSettings={businessSettings}
+/>
+}
 
       <p className="mt-3 text-xs text-gray-500">
         🚚 Delivery charges calculated during

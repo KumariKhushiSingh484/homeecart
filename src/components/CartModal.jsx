@@ -71,14 +71,15 @@ function CartModal() {
     onContinueShopping={closeCart}
   />
 ) : (
-  <div className="flex flex-1 min-h-0 flex-col">
-    <CartItemList
-      cartItems={cartItems}
-      increaseQuantity={increaseQuantity}
-      decreaseQuantity={decreaseQuantity}
-      deleteFromCart={deleteFromCart}
-    />
+ <div className="flex flex-1 min-h-0 flex-col">
+  <CartItemList
+    cartItems={cartItems}
+    increaseQuantity={increaseQuantity}
+    decreaseQuantity={decreaseQuantity}
+    deleteFromCart={deleteFromCart}
+  />
 
+  <div className="shrink-0 max-h-[35vh] overflow-y-auto">
     <CartSummary
       cartSubtotal={cartSubtotal}
       purchaseValidation={purchaseValidation}
@@ -87,6 +88,7 @@ function CartModal() {
       onContinueShopping={closeCart}
     />
   </div>
+</div>
 )}
 
       </div>
