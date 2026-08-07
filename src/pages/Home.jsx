@@ -1,3 +1,4 @@
+import { sortProducts } from "../utils/product/sortProducts";
 import {
   useEffect,
   useMemo,
@@ -97,47 +98,38 @@ useEffect(() => {
   return () => clearTimeout(timer);
 }, [searchTerm]);
   const filteredProducts = useMemo(() => {
-    const search = searchTerm
-      .trim()
-      .toLowerCase();
+  const search = searchTerm
+    .trim()
+    .toLowerCase();
 
-    return [...products]
-      .filter((product) => {
-        const productName =
-          product.name?.toLowerCase() || "";
+  const filtered = products.filter((product) => {
+    const productName =
+      product.name?.toLowerCase() || "";
 
-        const category =
-          product.category?.toLowerCase() || "";
+    const category =
+      product.category?.toLowerCase() || "";
 
-        const matchesSearch =
-          search === "" ||
-          productName.includes(search) ||
-          category.includes(search);
+    const matchesSearch =
+      search === "" ||
+      productName.includes(search) ||
+      category.includes(search);
 
-        const matchesCategory =
-          selectedCategory === "" ||
-          product.category ===
-            selectedCategory;
+    const matchesCategory =
+      selectedCategory === "" ||
+      product.category === selectedCategory;
 
-        return (
-          matchesSearch &&
-          matchesCategory
-        );
-      })
-      .sort((a, b) =>
-        a.name.localeCompare(
-          b.name,
-          "en",
-          {
-            sensitivity: "base",
-          }
-        )
-      );
-  }, [
-    products,
-    searchTerm,
-    selectedCategory,
-  ]);
+    return (
+      matchesSearch &&
+      matchesCategory
+    );
+  });
+
+  return sortProducts(filtered);
+}, [
+  products,
+  searchTerm,
+  selectedCategory,
+]);
 
   return (
     <>

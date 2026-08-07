@@ -7,6 +7,7 @@ import {
   formatCurrency,
 } from "./invoiceHelpers";
 
+
 export function drawSummary(
   doc,
   summary,
@@ -20,10 +21,10 @@ export function drawSummary(
 
   const cardX = 105;
   const cardWidth = 85;
-  const cardHeight = 58;
+  const cardHeight = 68;
 
   // =====================================
-  // Card
+  // Card Background
   // =====================================
 
   doc.setDrawColor(...COLORS.border);
@@ -50,19 +51,18 @@ export function drawSummary(
   doc.text(
     "PAYMENT SUMMARY",
     cardX + 5,
-    y + 8
+    y + 9
   );
 
-  // =====================================
-  // Summary Rows
-  // =====================================
-
-  let rowY = y + 18;
+  let rowY = y + 20;
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
 
+  // =====================================
   // Subtotal
+  // =====================================
+
   doc.text(
     "Subtotal",
     cardX + 5,
@@ -78,18 +78,21 @@ export function drawSummary(
     }
   );
 
-  rowY += 8;
+  rowY += 9;
 
+  // =====================================
   // Delivery
+  // =====================================
+
   doc.text(
-    "Delivery Charge",
+    "Delivery",
     cardX + 5,
     rowY
   );
 
   doc.text(
     delivery === 0
-      ? "FREE"
+      ? "Free"
       : formatCurrency(delivery),
     cardX + cardWidth - 5,
     rowY,
@@ -98,10 +101,13 @@ export function drawSummary(
     }
   );
 
-  rowY += 8;
+  rowY += 9;
 
-  // Future Ready
-  doc.setTextColor(160);
+  // =====================================
+  // Discount
+  // =====================================
+
+  doc.setTextColor(140);
 
   doc.text(
     "Discount",
@@ -122,7 +128,9 @@ export function drawSummary(
 
   rowY += 10;
 
+  // =====================================
   // Divider
+  // =====================================
 
   doc.setDrawColor(220);
 
@@ -136,26 +144,44 @@ export function drawSummary(
   rowY += 10;
 
   // =====================================
-  // Grand Total
+  // Grand Total Box
   // =====================================
 
+  doc.setFillColor(...COLORS.primary);
+
+  doc.roundedRect(
+    cardX + 5,
+    rowY - 6,
+    cardWidth - 10,
+    16,
+    2,
+    2,
+    "F"
+  );
+
+  doc.setTextColor(255, 255, 255);
+
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
+  doc.setFontSize(11);
 
   doc.text(
     "GRAND TOTAL",
-    cardX + 5,
-    rowY
+    cardX + 8,
+    rowY + 3
   );
+
+  doc.setFontSize(15);
 
   doc.text(
     formatCurrency(total),
-    cardX + cardWidth - 5,
-    rowY,
+    cardX + cardWidth - 8,
+    rowY + 3,
     {
       align: "right",
     }
   );
 
-  return y + cardHeight + 8;
+  doc.setTextColor(...COLORS.dark);
+
+  return y + cardHeight + 10;
 }

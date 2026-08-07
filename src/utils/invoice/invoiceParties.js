@@ -13,24 +13,33 @@ export function drawParties(
   const rightX = 110;
 
   const cardWidth = 85;
-  const cardHeight = 42;
+  const cardHeight = 34;
 
-  // ===============================
-  // Titles
-  // ===============================
+  // =====================================
+  // Section Titles
+  // =====================================
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(...COLORS.dark);
 
-  doc.text("FROM", leftX, y);
-  doc.text("BILL TO", rightX, y);
+  doc.text(
+    "Store Information",
+    leftX,
+    y
+  );
+
+  doc.text(
+    "Customer Information",
+    rightX,
+    y
+  );
 
   y += 5;
 
-  // ===============================
+  // =====================================
   // Cards
-  // ===============================
+  // =====================================
 
   doc.setDrawColor(...COLORS.border);
   doc.setFillColor(249, 250, 251);
@@ -55,14 +64,14 @@ export function drawParties(
     "FD"
   );
 
-  // ===============================
-  // Company
-  // ===============================
+  // =====================================
+  // Store Information
+  // =====================================
 
-  let companyY = y + 8;
+  let companyY = y + 7;
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(10);
 
   doc.text(
     COMPANY.name,
@@ -70,63 +79,69 @@ export function drawParties(
     companyY
   );
 
+  companyY += 6;
+
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(10);
+  doc.setFontSize(9);
 
-  companyY += 7;
+  doc.setTextColor(110);
 
   doc.text(
-    COMPANY.address,
+    COMPANY.address || "-",
     leftX + 5,
     companyY
   );
 
-  companyY += 6;
+  companyY += 5;
 
   doc.text(
-    COMPANY.phone,
+    COMPANY.phone || "-",
     leftX + 5,
     companyY
   );
 
-  companyY += 6;
+  companyY += 5;
 
   doc.text(
-    COMPANY.email,
+    COMPANY.email || "-",
     leftX + 5,
     companyY
   );
 
-  // ===============================
-  // Customer
-  // ===============================
+  // =====================================
+  // Customer Information
+  // =====================================
 
-  let customerY = y + 8;
+  let customerY = y + 7;
 
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-
-  doc.text(
-    order.customerName,
-    rightX + 5,
-    customerY
-  );
-
-  doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
-
-  customerY += 7;
+  doc.setTextColor(...COLORS.dark);
 
   doc.text(
-    order.phone,
+    order.customerName ||
+      "Customer",
     rightX + 5,
     customerY
   );
 
   customerY += 6;
 
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(110);
+
+  doc.text(
+    order.phone || "-",
+    rightX + 5,
+    customerY
+  );
+
+  customerY += 5;
+
   const address = doc.splitTextToSize(
-    order.address,
+    order.address ||
+      "Address not available",
     cardWidth - 10
   );
 
@@ -136,5 +151,7 @@ export function drawParties(
     customerY
   );
 
-  return y + cardHeight + 10;
+  doc.setTextColor(...COLORS.dark);
+
+  return y + cardHeight + 8;
 }
